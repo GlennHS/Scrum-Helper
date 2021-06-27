@@ -12,7 +12,7 @@
 <body>
   <main>
     <h2>Scrum Helper: It Probably Works™</h2>
-    <h3>(Works best outside of Firefox. I learned this the hard way.)</h3>
+    <h3 id="egg">Firefox is a pain in the [redacted] edition!</h3>
     <div id="shortcuts">
       <p id="quirks"><em><strong>Known Quirks:</strong> In Firefox if you Ctrl+Enter while focused on capacity it won't copy to clipboard</em></p>
       <table>
@@ -42,6 +42,7 @@
         </tr>
       </table>
     </div>
+    <div id="output"></div>
     <div id="task-holder">
       <form id="task-1">
         <label for="taskname">Clarizen Task:</label>
@@ -72,12 +73,14 @@
       <input type="button" value="Generate Message" name="generateMsg">
     </form>
     <br />
-    <div id="output"></div>
+    <div id="cute-container">
+      <img id="cute" src="http://placekitten.com/200/200" />
+    </div>
     <textarea tabindex="-1" id="fallback"></textarea>
   </main>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"
     integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-  <script>
+  <script async defer>
     let taskCount = 1,
       ctrlHeld = false
 
@@ -277,7 +280,49 @@
 
     $("input[name='generateMsg']").click(generateMsg)
 
-    document.onload = getStorage();
+    $('h2').click( () => {
+      const vaguelyAmusing = [
+        "Now with 20% less sodium!",
+        "No animals were harmed in the making of this site!",
+        "It Probably Works™",
+        "Private Header: Do Not Read",
+        "Clinically proven to cure bad breath!",
+        "Now it only breaks SOME of the time!",
+        "ORBS ORBS ORBS ORBS",
+        "You're Our Millionth Customer!",
+        "Please click gently, it's delicate...",
+        "Now completely vegan!",
+        "Built with <3... mostly.",
+        "How do you keep an idiot in suspense?",
+        "'Firefox annoys me' edition.",
+        "Now proudly NOT supporting IE.",
+        "Haven't you got work to be doing?",
+        "Want to see something amazing? Look in a mirror :)",
+        "Check me out @ https://github.com/GlennHS !",
+        "Caches are like hugs. Best when warm <3",
+        "Now sponsored by absolutely no one!"
+      ]
+      document.getElementById("egg").innerText = `(${vaguelyAmusing[Math.floor(Math.random() * vaguelyAmusing.length)]})`
+    })
+
+    async function scrapeFromReddit() {
+      let notChosen = true;
+      let tmp;
+      await fetch('https://www.reddit.com/r/RarePuppers/top.json')
+        .then(res => res.json())
+        .then(res => {
+          while(notChosen) {
+            tmp = res.data.children[Math.floor(Math.random() * res.data.children.length)]
+            if(tmp.data.post_hint == "image") { notChosen = false }
+          }
+        })
+        $('#cute').attr("src", tmp.data.preview.images[0].source.url.replace("&amp;", "&"))
+    }
+
+    document.onload = async function() {
+      getStorage();
+      scrapeFromReddit();
+    }()
   </script>
 </body>
 

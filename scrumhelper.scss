@@ -49,19 +49,46 @@ form {
 
 #shortcuts {
   background: #fff;
-  margin-bottom: 50px;
-  padding-bottom: 30px;
+  margin-bottom: 30px;
+  padding: 30px;
   border: #9FF solid 1px;
   border-radius: 5px;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
 }
+
 #shortcuts table {
-  margin: 0 auto;
+  width: 80%;
 }
+
 #shortcuts table td {
   border-bottom: #000 solid 1px;
   padding: 0 10px;
 }
 
+#quirks {
+  width: auto;
+}
+
+#cute-container {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+}
+
+#cute {
+  max-width: 600px;
+  height: auto;
+}
+
+#output {
+  font-size: 14px!important;
+  width: 100%;
+  text-align: center;
+  padding-bottom: 20px;
+}
 
 #task-holder {
   background: #fff;

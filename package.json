@@ -1,0 +1,24 @@
+{
+  "name": "scrum-helper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "watch": "npx sass scrumhelper.scss scrumhelper.css -w",
+    "build": "npx sass scrumhelper.scss scrumhelper.css",
+    "serve": "http-server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GlennHS/Scrum-Helper.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GlennHS/Scrum-Helper/issues"
+  },
+  "homepage": "https://github.com/GlennHS/Scrum-Helper#readme",
+  "devDependencies": {
+    "sass": "^1.35.1"
+  }
+}
