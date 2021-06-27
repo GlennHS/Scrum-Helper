@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scrum Helper</title>
+  <link rel="stylesheet" href="scrumhelper.css">
+</head>
+
+<body>
+  <main>
+    <h2>Scrum Helper: It Probably Works™</h2>
+    <h3>(Works best outside of Firefox. I learned this the hard way.)</h3>
+    <div id="shortcuts">
+      <p id="quirks"><em><strong>Known Quirks:</strong> In Firefox if you Ctrl+Enter while focused on capacity it won't copy to clipboard</em></p>
+      <table>
+        <tr>
+          <td><strong>Ctrl+#</strong></td>
+          <td>Add task and focus it</td>
+        </tr>
+        <tr>
+          <td><strong>Ctrl+Del</strong></td>
+          <td>Delete current task and focus previous task</td>
+        </tr>
+        <tr>
+          <td><strong>Ctrl+Up/Down</strong></td>
+          <td>Go to previous/next task</td>
+        </tr>
+        <tr>
+          <td><strong>Tab/Shift+Tab</strong></td>
+          <td>Go to next/previous input field</td>
+        </tr>
+        <tr>
+          <td><strong>Ctrl+/</strong></td>
+          <td>Swap between capacity dropdown and last task</td>
+        </tr>
+        <tr>
+          <td><strong>Ctrl+Enter</strong></td>
+          <td>Generate message and copy it to clipboard</td>
+        </tr>
+      </table>
+    </div>
+    <div id="task-holder">
+      <form id="task-1">
+        <label for="taskname">Clarizen Task:</label>
+        <input type="text" autofocus name="taskname" placeholder="Clarizen Task Name">
+        <label for="blocked">Blocked?</label>
+        <select name="blocked">
+          <option value="No">No</option>
+          <option value="Partial">Partial</option>
+          <option value="Yes">Yes</option>
+        </select>
+        <label for="status">Status Update:</label>
+        <input type="text" name="status" placeholder="Status Update">
+        <input type="button" name="delete" value="Delete Task">
+      </form>
+    </div>
+    <br />
+    <form id="main-controls">
+      <label for="capacity">Capacity:</label>
+      <select id="capacity" class="Light" name="capacity">
+        <option value="Light" selected>Light - &gt;3 hours available capacity // &lt;50% Full </option>
+        <option value="Medium">Medium - 1-3 hours available capacity // 50-85% Full </option>
+        <option value="Busy">Busy - &lt;1 hour available capacity, on-track // 85-95% Full </option>
+        <option value="Full">Full - No free capacity, on-track // 100% Full </option>
+        <option value="Overloaded">!Overloaded! - Can't meet current deadlines with unblocked work, off-track // &gt;100%
+          Full </option>
+      </select>
+      <input type="button" value="Add Task" name="addTask">
+      <input type="button" value="Generate Message" name="generateMsg">
+    </form>
+    <br />
+    <div id="output"></div>
+    <textarea tabindex="-1" id="fallback"></textarea>
+  </main>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script>
+    let taskCount = 1,
+      ctrlHeld = false
+
+    const copyDivToClipboard = (elemID) => {
+      var range = document.createRange();
+      range.selectNode(document.getElementById(elemID));
+      window.getSelection().removeAllRanges(); // clear current selection
+      window.getSelection().addRange(range); // to select text
+      document.execCommand("copy");
+      window.getSelection().removeAllRanges(); // to deselect
+    }
+
+    const createElementFromHTML = (htmlString) => {
+      var div = document.createElement('div');
+      div.innerHTML = htmlString.trim();
+
+      return div.firstChild;
+    }
+
+    const nullCheck = (v) => { return v ? v : "" }
+
+    /**
+     * Storage Functions 
+     * Storage formatted TASKNAME||TASKSTATUS||BLOCKED
+     * "###" Delimited
+     * Capacity at the end
+     */
+    const setStorage = () => {
+      try {
+        let tasklist = ""
+        $("#task-holder")[0].querySelectorAll("form").forEach(form => {
+          const tName = nullCheck(form.querySelector("input[name='taskname']").value);
+          const tStatus = nullCheck(form.querySelector("input[name='status']").value);
+          const tBlocked = form.querySelector("select[name='blocked']").value;
+
+          tasklist += `${tName}||${tStatus}||${tBlocked}###`
+        })
+        tasklist += $("#capacity").val()
+        localStorage.setItem("tasklist", tasklist)
+      } catch(e) { console.log(e); }
+    }
+
+    const getStorage = () => {
+      try {
+        let tasklist = localStorage.getItem("tasklist").split("###")
+        let capacityVal = tasklist.pop()
+        $("#task-holder")[0].innerHTML = ""
+        tasklist.forEach(t => {
+          let tValues = t.split("||")
+          addTask()
+          let taskElem = $("#task-holder")[0].lastChild
+          taskElem.querySelector("input[name='taskname']").value = tValues[0]
+          taskElem.querySelector("input[name='status']").value = tValues[1]
+          taskElem.querySelector("select[name='blocked']").value = tValues[2]
+        })
+        $("#capacity").val(capacityVal)
+        capacityPrettify()
+      } catch(e) { console.log(e); }
+    }
+
+    const capacityPrettify = () => { $("#capacity")[0].classList = $("#capacity").val(); }
+
+    const changeFocus = (movinOnUp) => {
+      const currFormID = $("input:focus").parent("form").attr("id");
+      const forms = Array.from(document.querySelectorAll("#task-holder form"))
+      for (let i = 0; i < forms.length; i++) {
+        if (forms[i].id == currFormID) {
+          if (movinOnUp) {
+            try {
+              forms[i - 1].querySelector("input[name='taskname']").focus()
+            } catch {}
+          } else {
+            try {
+              forms[i + 1].querySelector("input[name='taskname']").focus()
+            } catch {}
+          }
+        }
+      }
+    }
+
+    const deleteTask = () => {
+      try {
+        let focussedBtn = document.querySelector("input[name='delete']:focus")
+        $(focussedBtn.parentElement.previousSibling).children("input[name='taskname']").focus();
+        focussedBtn.parentElement.remove();
+      } catch {
+        try {
+          let focussedInput = document.querySelector("#task-holder input[type='text']:focus")
+          $(focussedInput.parentElement.previousSibling).children("input[name='taskname']").focus();
+          focussedInput.parentElement.remove();
+        } catch (e) {}
+      }
+    }
+
+    const addTask = () => {
+      taskCount++;
+      let newTask = createElementFromHTML(`
+      <form id="task-${taskCount}">
+        <label for="taskname">Clarizen Task:</label>
+        <input type="text" name="taskname" placeholder="Clarizen Task Name">
+        <label for="blocked">Blocked?</label>
+        <select name="blocked">
+          <option value="No">No</option>
+          <option value="Partial">Partial</option>
+          <option value="Yes">Yes</option>
+        </select>
+        <label for="status">Status Update:</label>
+        <input type="text" name="status" placeholder="Status Update">
+        <input type="button" name="delete" value="Delete Task">
+      </form>
+      `)
+      $("#task-holder").append(newTask);
+
+      $("input[name='delete']").click(deleteTask)
+
+      $(newTask).children("input[name='taskname']").focus();
+    };
+
+    const generateMsg = () => {
+      let outElem = document.getElementById("output"),
+        numBlocked = 0,
+        msg = ""
+
+      $("#task-holder")[0].querySelectorAll("form").forEach(form => {
+        const tName = form.querySelector("input[name='taskname']").value;
+        const tStatus = form.querySelector("input[name='status']").value;
+        const tBlocked = form.querySelector("select[name='blocked']").value;
+
+        if(!(tBlocked === "No")) { numBlocked++; }
+
+        msg +=
+          `<strong>Task: ${tName}</strong>${"<br />"}Status: ${tStatus}<br /><i>Blocked: ${tBlocked}</i><br /><br />`
+      })
+      msg += `Number of Tasks Blocked: ${numBlocked}<br />`
+      msg += `<u><b>Available Capacity: ${$("#capacity").val()}</b></u>`;
+
+      if($("#capacity").val() == "Light") { msg += "✋" }
+      else if($("#capacity").val() == "Full") { msg += "💯" }
+      else if($("#capacity").val() == "Overloaded") {
+        msg = "⚠⚠⚠⚠⚠<br />" + msg;
+        msg+="<br />⚠⚠⚠⚠⚠"
+      }
+
+      outElem.innerHTML = msg;
+
+      outElem.style.height = "";
+      outElem.style.height = outElem.scrollHeight + "px"
+      setStorage()
+    }
+
+    // Event Listeners
+    $("#capacity").change(capacityPrettify)
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === "Control") {
+        ctrlHeld = true
+      } else if (ctrlHeld && e.key === "Delete") {
+        deleteTask()
+      } else if (ctrlHeld && e.key === "#") {
+        addTask()
+      } else if (ctrlHeld && e.key === "Enter") {
+        generateMsg();
+        setTimeout(() => {
+          if (!navigator.userAgent.includes("Mozilla")) {
+            copyDivToClipboard('output')
+          } else {
+            document.getElementById("fallback").value = document.getElementById("output").innerText
+            document.getElementById("fallback").focus()
+            document.getElementById("fallback").select()
+            document.execCommand("copy")
+          }
+        }, 500)
+      } else if (ctrlHeld && e.key === "/") {
+        if($("#capacity")[0] === document.activeElement) {
+          $("#task-holder form:last-child input[name='taskname']").focus()
+        } else {
+          $("#capacity").focus();
+        }
+      } else if (ctrlHeld && e.key === "ArrowUp") {
+        changeFocus(true)
+      } else if (ctrlHeld && e.key === "ArrowDown") {
+        changeFocus(false)
+      }
+    });
+
+    document.addEventListener('keyup', (e) => {
+      if (e.key === "Control") {
+        ctrlHeld = false
+      }
+    });
+
+    $("input[name='addTask']").click(addTask)
+
+    document.querySelectorAll("input[name='delete']").forEach(elem => {
+      elem.onclick = deleteTask
+    })
+
+    $("input[name='generateMsg']").click(generateMsg)
+
+    document.onload = getStorage();
+  </script>
+</body>
+
+</html>

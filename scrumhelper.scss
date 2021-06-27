@@ -1,0 +1,181 @@
+$ct-pink: #E72176;
+$aether-blue: #99FFFF;
+
+body {
+  font-size: 18px;
+  line-height: 20px;
+  background: $aether-blue;
+
+  ::placeholder {
+    font-size: 18px;
+    line-height: 20px;
+  }
+}
+
+main {
+  padding: 30px 10%;
+  background: $ct-pink;
+  min-height: calc(100vh - 80px);
+  height: auto;
+}
+
+h2, h3, #quirks {
+  text-align: center;
+}
+
+form {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  row-gap: 10px;
+  column-gap: 10px;
+  width: 100%;
+  padding: 10px 0;
+
+  label {
+    text-align: right;
+  }
+
+  input[type="text"] {
+    font-size: 18px;
+    line-height: 20px;
+  }
+  
+  input[type="button"]:hover {
+    cursor: pointer;
+    filter: brightness(0.8);
+  }
+}
+
+#shortcuts {
+  background: #fff;
+  margin-bottom: 50px;
+  padding-bottom: 30px;
+  border: #9FF solid 1px;
+  border-radius: 5px;
+}
+#shortcuts table {
+  margin: 0 auto;
+}
+#shortcuts table td {
+  border-bottom: #000 solid 1px;
+  padding: 0 10px;
+}
+
+
+#task-holder {
+  background: #fff;
+  border: #000 solid 2px;
+  padding: 5px;
+
+  form {
+    label {
+      width: 10%;
+    }
+
+    input[type="text"] {
+      background: lighten($ct-pink, 40%);
+      width: 65%;
+    }
+
+    input[type="button"] {
+      flex-grow: 10;
+    }
+  }
+}
+
+#main-controls {
+  background: #fff;
+  border: #000 solid 2px;
+  width: 100%;
+
+  label {
+    width: 10%;
+    text-align: right;
+    padding-right: 5px;
+  }
+
+  select {
+    width: 60%;
+  }
+
+  input[type="button"] {
+    width: 10%;
+  }
+}
+
+input {
+  border: $ct-pink solid 2px;
+  border-radius: 5px;
+  height: 24px;
+
+  &[name="delete"] {
+    background: #f44;
+    color: #fff;
+  }
+}
+
+#fallback {
+  position: absolute;
+  left: -99999px;
+}
+
+select {
+  font-size: 18px;
+  color: black;
+
+  &.Overloaded, option[value="overloaded"] {
+    background: $ct-pink;
+    color: white;
+  }
+  &.Full, option[value="full"] {
+    background: #66d;
+    color: white;
+  }
+  &.Busy, option[value="busy"] {
+    background: #6d6;
+  }
+  &.Medium, option[value="medium"] {
+    background: #aaa;
+  }
+  &.Light, option[value="light"] {
+    background: #ddd;
+  }
+
+  &:focus {
+    border: blue solid 2px;
+  }
+}
+
+@media screen and (max-width: 800px) {
+
+  main {
+    height: auto;
+  }
+  form {
+    flex-flow: column;
+    row-gap: 10px;
+    column-gap: 10px;
+    width: 100%;
+    padding: 10px 0;
+  
+    label {
+      text-align: center!important;
+      width: 100%!important;
+    }
+  
+    input[type="text"] {
+      font-size: 1.2em;
+      line-height: 1.3em;
+      width: 95%!important;
+    }
+    
+    input[type="button"] {
+      width: 95%!important;
+    }
+  }
+
+  #task-holder form {
+    border-bottom: #000 solid 1px;
+  }
+}
