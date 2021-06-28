@@ -378,6 +378,10 @@
       }
     }
 
+    window.addEventListener("beforeunload", function(e){
+      setStorage()
+    });
+
     document.onload = async function() {
       checkLegacy();
       getStorage();
