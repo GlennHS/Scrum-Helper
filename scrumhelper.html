@@ -75,6 +75,7 @@
     <br />
     <div id="cute-container">
       <img id="cute" src="http://placekitten.com/200/200" />
+      <textarea id="subreddit-list" placeholder="aww, rarepuppers, blop, blep, sploot"></textarea>
     </div>
     <textarea tabindex="-1" id="fallback"></textarea>
   </main>
@@ -110,33 +111,40 @@
      */
     const setStorage = () => {
       try {
-        let tasklist = ""
+        let storageJSON = {
+          "tasklist": [],
+          "capacity": "Low",
+          "subreddits": []
+        }
         $("#task-holder")[0].querySelectorAll("form").forEach(form => {
-          const tName = nullCheck(form.querySelector("input[name='taskname']").value);
-          const tStatus = nullCheck(form.querySelector("input[name='status']").value);
-          const tBlocked = form.querySelector("select[name='blocked']").value;
-
-          tasklist += `${tName}||${tStatus}||${tBlocked}###`
+          storageJSON.tasklist.push({
+            "name": nullCheck(form.querySelector("input[name='taskname']").value),
+            "status": nullCheck(form.querySelector("input[name='status']").value),
+            "blocked": form.querySelector("select[name='blocked']").value
+          })
         })
-        tasklist += $("#capacity").val()
-        localStorage.setItem("tasklist", tasklist)
+        storageJSON.capacity = $("#capacity").val()
+        storageJSON.subreddits = nullCheck($("#subreddit-list").val()).split(",")
+        localStorage.setItem("tasklistV2", JSON.stringify(storageJSON))
       } catch(e) { console.log(e); }
     }
 
     const getStorage = () => {
       try {
-        let tasklist = localStorage.getItem("tasklist").split("###")
-        let capacityVal = tasklist.pop()
+        let storedJSON = JSON.parse(localStorage.getItem("tasklistV2"))
+        let subredditList = storedJSON.subreddits
+        let capacityVal = storedJSON.capacity
         $("#task-holder")[0].innerHTML = ""
-        tasklist.forEach(t => {
-          let tValues = t.split("||")
+        storedJSON.tasklist.forEach(t => {
           addTask()
           let taskElem = $("#task-holder")[0].lastChild
-          taskElem.querySelector("input[name='taskname']").value = tValues[0]
-          taskElem.querySelector("input[name='status']").value = tValues[1]
-          taskElem.querySelector("select[name='blocked']").value = tValues[2]
+          taskElem.querySelector("input[name='taskname']").value = t.name
+          taskElem.querySelector("input[name='status']").value = t.status
+          taskElem.querySelector("select[name='blocked']").value = t.blocked
         })
-        $("#capacity").val(capacityVal)
+        $("#capacity").val(storedJSON.capacity)
+        $("#subreddit-list").val(storedJSON.subreddits.join(","))
+        subredditListReady = true;
         capacityPrettify()
       } catch(e) { console.log(e); }
     }
@@ -168,6 +176,7 @@
         focussedBtn.parentElement.remove();
       } catch {
         try {
+          alert("Fuck")
           let focussedInput = document.querySelector("#task-holder input[type='text']:focus")
           $(focussedInput.parentElement.previousSibling).children("input[name='taskname']").focus();
           focussedInput.parentElement.remove();
@@ -306,18 +315,30 @@
     })
 
     async function scrapeFromReddit() {
-      let notChosen = true;
-      let tmp;
-      await fetch('https://www.reddit.com/r/RarePuppers/top.json')
-        .then(res => res.json())
-        .then(res => {
-          while(notChosen) {
-            tmp = res.data.children[Math.floor(Math.random() * res.data.children.length)]
-            if(tmp.data.post_hint == "image") { notChosen = false }
-          }
-        })
-        $('#cute').attr("src", tmp.data.preview.images[0].source.url.replace("&amp;", "&"))
+      let notChosen = true, subNotValid = true;
+      let tmp, subredditList, chosenSub, res;
+      subredditList = $('#subreddit-list').val().split(",")
+      subredditList = subredditList.map(s => s.trim() )
+      if(!subredditList) {subredditList = ["RarePuppers"]}
+      while(subNotValid) {
+        chosenSub = subredditList[Math.floor(Math.random() * subredditList.length)]
+        res = await fetch(`https://www.reddit.com/r/${chosenSub}/top.json`)
+          .catch(() => { subredditList.splice(subredditList.indexOf(chosenSub), 1) })
+          .then( () => { subNotValid = res ? false : true })
+      }
+      res = res.json()
+      try {
+        while(notChosen) {
+          tmp = res.data.children[Math.floor(Math.random() * res.data.children.length)]
+          if(tmp.data.post_hint == "image") { notChosen = false }
+        }
+      } catch (e) {console.error(e)}
+      $('#cute').attr("src", tmp.data.preview.images[0].source.url.replace("&amp;", "&"))
     }
+
+    window.addEventListener("beforeunload", function(e){
+      setStorage()
+    });
 
     document.onload = async function() {
       getStorage();

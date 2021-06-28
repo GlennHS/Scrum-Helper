@@ -68,12 +68,18 @@ form input[type=button]:hover {
 #cute-container {
   width: 100%;
   display: flex;
-  justify-content: space-around;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+}
+#cute-container textarea {
+  width: 600px;
 }
 
 #cute {
   max-width: 600px;
   height: auto;
+  padding-bottom: 20px;
 }
 
 #output {

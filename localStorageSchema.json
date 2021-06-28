@@ -1,0 +1,25 @@
+{
+  "tasklist": [
+    {
+      "name": "17567_AAAAA",
+      "blocked": "Partial",
+      "status": "Yeah"
+    },
+    {
+      "name": "17567_AAAAA",
+      "blocked": "Partial",
+      "status": "Yeah"
+    },
+    {
+      "name": "17567_AAAAA",
+      "blocked": "Partial",
+      "status": "Yeah"
+    }
+  ],
+  "capacity": "Busy",
+  "subreddits": [
+    "aww",
+    "blop",
+    "rarepuppers"
+  ]
+}
