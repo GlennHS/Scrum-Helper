@@ -6,13 +6,16 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Scrum Helper</title>
+  <link rel="icon" 
+      type="image/png" 
+      href="./favicon.png">
   <link rel="stylesheet" href="scrumhelper.css">
 </head>
 
 <body>
   <main>
     <h2>Scrum Helper: It Probably Works™</h2>
-    <h3 id="egg">Firefox is a pain in the [redacted] edition!</h3>
+    <h3 id="egg">Asynchronous coding hurts my head edition!</h3>
     <div id="shortcuts">
       <p id="quirks"><em><strong>Known Quirks:</strong> In Firefox if you Ctrl+Enter while focused on capacity it won't copy to clipboard</em></p>
       <table>
@@ -75,6 +78,7 @@
     <br />
     <div id="cute-container">
       <img id="cute" src="http://placekitten.com/200/200" />
+      <textarea id="subreddit-list" placeholder="aww, rarepuppers, blop, blep, sploot"></textarea>
     </div>
     <textarea tabindex="-1" id="fallback"></textarea>
   </main>
@@ -110,33 +114,40 @@
      */
     const setStorage = () => {
       try {
-        let tasklist = ""
+        let storageJSON = {
+          "tasklist": [],
+          "capacity": "Low",
+          "subreddits": []
+        }
         $("#task-holder")[0].querySelectorAll("form").forEach(form => {
-          const tName = nullCheck(form.querySelector("input[name='taskname']").value);
-          const tStatus = nullCheck(form.querySelector("input[name='status']").value);
-          const tBlocked = form.querySelector("select[name='blocked']").value;
-
-          tasklist += `${tName}||${tStatus}||${tBlocked}###`
+          storageJSON.tasklist.push({
+            "name": nullCheck(form.querySelector("input[name='taskname']").value),
+            "status": nullCheck(form.querySelector("input[name='status']").value),
+            "blocked": form.querySelector("select[name='blocked']").value
+          })
         })
-        tasklist += $("#capacity").val()
-        localStorage.setItem("tasklist", tasklist)
+        storageJSON.capacity = $("#capacity").val()
+        storageJSON.subreddits = nullCheck($("#subreddit-list").val()).split(",")
+        localStorage.setItem("tasklistV2", JSON.stringify(storageJSON))
       } catch(e) { console.log(e); }
     }
 
     const getStorage = () => {
       try {
-        let tasklist = localStorage.getItem("tasklist").split("###")
-        let capacityVal = tasklist.pop()
+        let storedJSON = JSON.parse(localStorage.getItem("tasklistV2"))
+        let subredditList = storedJSON.subreddits
+        let capacityVal = storedJSON.capacity
         $("#task-holder")[0].innerHTML = ""
-        tasklist.forEach(t => {
-          let tValues = t.split("||")
+        storedJSON.tasklist.forEach(t => {
           addTask()
           let taskElem = $("#task-holder")[0].lastChild
-          taskElem.querySelector("input[name='taskname']").value = tValues[0]
-          taskElem.querySelector("input[name='status']").value = tValues[1]
-          taskElem.querySelector("select[name='blocked']").value = tValues[2]
+          taskElem.querySelector("input[name='taskname']").value = t.name
+          taskElem.querySelector("input[name='status']").value = t.status
+          taskElem.querySelector("select[name='blocked']").value = t.blocked
         })
-        $("#capacity").val(capacityVal)
+        $("#capacity").val(storedJSON.capacity)
+        $("#subreddit-list").val(storedJSON.subreddits.join(","))
+        subredditListReady = true;
         capacityPrettify()
       } catch(e) { console.log(e); }
     }
@@ -166,13 +177,16 @@
         let focussedBtn = document.querySelector("input[name='delete']:focus")
         $(focussedBtn.parentElement.previousSibling).children("input[name='taskname']").focus();
         focussedBtn.parentElement.remove();
-      } catch {
-        try {
-          let focussedInput = document.querySelector("#task-holder input[type='text']:focus")
-          $(focussedInput.parentElement.previousSibling).children("input[name='taskname']").focus();
-          focussedInput.parentElement.remove();
-        } catch (e) {}
-      }
+        deleted = true
+      } catch { }
+    }
+
+    const deleteTaskShortcut = () => {
+      try {
+        let focussedInput = document.querySelector("#task-holder input[type='text']:focus")
+        $(focussedInput.parentElement.previousSibling).children("input[name='taskname']").focus();
+        focussedInput.parentElement.remove();
+      } catch (e) {}
     }
 
     const addTask = () => {
@@ -220,8 +234,7 @@
       if($("#capacity").val() == "Light") { msg += "✋" }
       else if($("#capacity").val() == "Full") { msg += "💯" }
       else if($("#capacity").val() == "Overloaded") {
-        msg = "⚠⚠⚠⚠⚠<br />" + msg;
-        msg+="<br />⚠⚠⚠⚠⚠"
+        msg = `⚠⚠⚠⚠⚠<br />${msg}<br />⚠⚠⚠⚠⚠`;
       }
 
       outElem.innerHTML = msg;
@@ -238,7 +251,7 @@
       if (e.key === "Control") {
         ctrlHeld = true
       } else if (ctrlHeld && e.key === "Delete") {
-        deleteTask()
+        deleteTaskShortcut()
       } else if (ctrlHeld && e.key === "#") {
         addTask()
       } else if (ctrlHeld && e.key === "Enter") {
@@ -252,6 +265,7 @@
             document.getElementById("fallback").select()
             document.execCommand("copy")
           }
+          document.getElementById("output").scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
         }, 500)
       } else if (ctrlHeld && e.key === "/") {
         if($("#capacity")[0] === document.activeElement) {
@@ -278,7 +292,10 @@
       elem.onclick = deleteTask
     })
 
-    $("input[name='generateMsg']").click(generateMsg)
+    $("input[name='generateMsg']").click(() => {
+      generateMsg;
+      document.getElementById("output").scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
+    })
 
     $('h2').click( () => {
       const vaguelyAmusing = [
@@ -300,26 +317,69 @@
         "Want to see something amazing? Look in a mirror :)",
         "Check me out @ https://github.com/GlennHS !",
         "Caches are like hugs. Best when warm <3",
-        "Now sponsored by absolutely no one!"
+        "Now sponsored by absolutely no one!",
+        "If it ain't broke, Seabrook's not touched it yet",
       ]
       document.getElementById("egg").innerText = `(${vaguelyAmusing[Math.floor(Math.random() * vaguelyAmusing.length)]})`
     })
 
     async function scrapeFromReddit() {
-      let notChosen = true;
-      let tmp;
-      await fetch('https://www.reddit.com/r/RarePuppers/top.json')
-        .then(res => res.json())
-        .then(res => {
-          while(notChosen) {
-            tmp = res.data.children[Math.floor(Math.random() * res.data.children.length)]
-            if(tmp.data.post_hint == "image") { notChosen = false }
-          }
-        })
-        $('#cute').attr("src", tmp.data.preview.images[0].source.url.replace("&amp;", "&"))
+      let notChosen = true, tmp
+      subredditList = $('#subreddit-list').val().split(",")
+      subredditList = subredditList.map(s => s.trim() )
+      if(!subredditList) {subredditList = ["RarePuppers"]}
+      while(notChosen) {
+        try {
+          await fetch(`https://www.reddit.com/r/${subredditList[Math.floor(Math.random() * subredditList.length)]}/top.json`)
+            .then( (res) => res.json())
+            .then( (res) => {
+              try {
+                while(notChosen) {
+                  tmp = res.data.children[Math.floor(Math.random() * res.data.children.length)]
+                  if(tmp.data.post_hint == "image") { notChosen = false }
+                }
+              } catch (e) {console.error(e)}
+              $('#cute').attr("src", tmp.data.preview.images[0].source.url.replace("&amp;", "&"))
+            })
+        } catch {}
+      }
+    }
+
+    window.addEventListener("beforeunload", function(e){
+      setStorage()
+    });
+
+    const checkLegacy = () => {
+      try {
+        let tasklistV2 = {
+          "tasklist": [],
+          "capacity": "Low",
+          "subreddits": []
+        }
+        if(localStorage.getItem("tasklist")) {
+          let tasklist = localStorage.getItem("tasklist").split("###")
+          let capacityVal = tasklist.pop()
+          $("#task-holder")[0].innerHTML = ""
+          tasklist.forEach((t) => {
+            let tValues = t.split("||")
+            tasklistV2.tasklist.push({
+              "name": tValues[0],
+              "status": tValues[1],
+              "blocked": tValues[2]
+            })
+          })
+          tasklistV2.capacity = capacityVal
+          tasklistV2.subreddits = ["rarepuppers", "blep", "blop"]
+          localStorage.setItem("tasklistV2", JSON.stringify(tasklistV2))
+          localStorage.removeItem("tasklist")
+        }
+      } catch(e) {
+        console.log(e)
+      }
     }
 
     document.onload = async function() {
+      checkLegacy();
       getStorage();
       scrapeFromReddit();
     }()
