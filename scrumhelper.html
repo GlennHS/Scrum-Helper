@@ -293,7 +293,7 @@
     })
 
     $("input[name='generateMsg']").click(() => {
-      generateMsg;
+      generateMsg();
       document.getElementById("output").scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
     })
 
@@ -344,10 +344,6 @@
         } catch {}
       }
     }
-
-    window.addEventListener("beforeunload", function(e){
-      setStorage()
-    });
 
     const checkLegacy = () => {
       try {
