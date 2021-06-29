@@ -85,8 +85,7 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"
     integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
   <script async defer>
-    let taskCount = 1,
-      ctrlHeld = false
+    let taskCount = 1;
 
     const copyDivToClipboard = (elemID) => {
       var range = document.createRange();
@@ -248,13 +247,17 @@
     $("#capacity").change(capacityPrettify)
 
     document.addEventListener('keydown', (e) => {
-      if (e.key === "Control") {
-        ctrlHeld = true
-      } else if (ctrlHeld && e.key === "Delete") {
+      // Early return if ctrl key is not pressed since we expect
+      // ctrl to be part of all shortcuts in this block.
+      if (!e.ctrlKey) {
+        return;
+      }
+
+      if (e.key === "Delete") {
         deleteTaskShortcut()
-      } else if (ctrlHeld && e.key === "#") {
+      } else if (e.key === "#") {
         addTask()
-      } else if (ctrlHeld && e.key === "Enter") {
+      } else if (e.key === "Enter") {
         generateMsg();
         setTimeout(() => {
           if (!navigator.userAgent.includes("Mozilla")) {
@@ -267,22 +270,16 @@
           }
           document.getElementById("output").scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
         }, 500)
-      } else if (ctrlHeld && e.key === "/") {
+      } else if (e.key === "/") {
         if($("#capacity")[0] === document.activeElement) {
           $("#task-holder form:last-child input[name='taskname']").focus()
         } else {
           $("#capacity").focus();
         }
-      } else if (ctrlHeld && e.key === "ArrowUp") {
+      } else if (e.key === "ArrowUp") {
         changeFocus(true)
-      } else if (ctrlHeld && e.key === "ArrowDown") {
+      } else if (e.key === "ArrowDown") {
         changeFocus(false)
-      }
-    });
-
-    document.addEventListener('keyup', (e) => {
-      if (e.key === "Control") {
-        ctrlHeld = false
       }
     });
 
@@ -381,7 +378,7 @@
     document.onload = async function() {
       checkLegacy();
       getStorage();
-      scrapeFromReddit();
+      // scrapeFromReddit();
     }()
   </script>
 </body>
