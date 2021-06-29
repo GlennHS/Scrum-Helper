@@ -320,25 +320,45 @@
       document.getElementById("egg").innerText = `(${vaguelyAmusing[Math.floor(Math.random() * vaguelyAmusing.length)]})`
     })
 
-    async function scrapeFromReddit() {
-      let notChosen = true, tmp
-      subredditList = $('#subreddit-list').val().split(",")
-      subredditList = subredditList.map(s => s.trim() )
-      if(!subredditList) {subredditList = ["RarePuppers"]}
-      while(notChosen) {
+    async function sanitiseSubreddits(subredditList) {
+      return await subredditList.filter( async (sub) => {
+        res = await fetch(`https://www.reddit.com/r/${subredditList[Math.floor(Math.random() * subredditList.length)]}/top.json`)
+        res = res.json()
         try {
-          await fetch(`https://www.reddit.com/r/${subredditList[Math.floor(Math.random() * subredditList.length)]}/top.json`)
-            .then( (res) => res.json())
-            .then( (res) => {
-              try {
-                while(notChosen) {
-                  tmp = res.data.children[Math.floor(Math.random() * res.data.children.length)]
-                  if(tmp.data.post_hint == "image") { notChosen = false }
-                }
-              } catch (e) {console.error(e)}
-              $('#cute').attr("src", tmp.data.preview.images[0].source.url.replace("&amp;", "&"))
-            })
-        } catch {}
+          //alert(res.data.after)
+          if(res.data.after != "") {
+            alert(`Checked ${sub}. Response`)
+            return true;
+          }
+        } catch {
+          return false;
+        }
+      })
+    }
+
+    async function scrapeFromReddit() {
+      let notChosen = true, tmp, subredditList
+      while(notChosen) {
+        subredditList = await nullCheck($('#subreddit-list').val().split(","))
+        subredditList = await sanitiseSubreddits(subredditList)
+        alert(`subList: ${subredditList}`)
+        if(subredditList.length === 0) { subredditList = ["rarepuppers"]}
+        subredditList = subredditList.map(s => s.trim() )
+        while(notChosen) {
+          try {
+            await fetch(`https://www.reddit.com/r/${subredditList[Math.floor(Math.random() * subredditList.length)]}/top.json`)
+              .then( (res) => res.json())
+              .then( (res) => {
+                try {
+                  while(notChosen) {
+                    tmp = res.data.children[Math.floor(Math.random() * res.data.children.length)]
+                    if(tmp.data.post_hint == "image") { notChosen = false }
+                  }
+                } catch (e) {console.error(e)}
+                $('#cute').attr("src", tmp.data.preview.images[0].source.url.replace("&amp;", "&"))
+              })
+          } catch {}
+        }
       }
     }
 
@@ -347,7 +367,7 @@
         let tasklistV2 = {
           "tasklist": [],
           "capacity": "Low",
-          "subreddits": []
+          "subreddits": ["rarepuppers", "blep", "blop"]
         }
         if(localStorage.getItem("tasklist")) {
           let tasklist = localStorage.getItem("tasklist").split("###")
@@ -362,7 +382,6 @@
             })
           })
           tasklistV2.capacity = capacityVal
-          tasklistV2.subreddits = ["rarepuppers", "blep", "blop"]
           localStorage.setItem("tasklistV2", JSON.stringify(tasklistV2))
           localStorage.removeItem("tasklist")
         }
@@ -378,7 +397,7 @@
     document.onload = async function() {
       checkLegacy();
       getStorage();
-      // scrapeFromReddit();
+      //scrapeFromReddit();
     }()
   </script>
 </body>
