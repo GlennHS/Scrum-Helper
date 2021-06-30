@@ -243,21 +243,19 @@
       setStorage()
     }
 
-    // Event Listeners
-    $("#capacity").change(capacityPrettify)
-
-    document.addEventListener('keydown', (e) => {
-      // Early return if ctrl key is not pressed since we expect
-      // ctrl to be part of all shortcuts in this block.
-      if (!e.ctrlKey) {
-        return;
-      }
-
-      if (e.key === "Delete") {
-        deleteTaskShortcut()
-      } else if (e.key === "#") {
-        addTask()
-      } else if (e.key === "Enter") {
+    const ctrlShortcuts = {
+      "Delete": deleteTaskShortcut,
+      "#": addTask,
+      "ArrowUp": () => changeFocus(true),
+      "ArrowDown": () => changeFocus(false),
+      "/": function() {
+        if($("#capacity")[0] === document.activeElement) {
+          $("#task-holder form:last-child input[name='taskname']").focus()
+        } else {
+          $("#capacity").focus();
+        }
+      },
+      "Enter": function() {
         generateMsg();
         setTimeout(() => {
           if (!navigator.userAgent.includes("Mozilla")) {
@@ -270,16 +268,18 @@
           }
           document.getElementById("output").scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
         }, 500)
-      } else if (e.key === "/") {
-        if($("#capacity")[0] === document.activeElement) {
-          $("#task-holder form:last-child input[name='taskname']").focus()
-        } else {
-          $("#capacity").focus();
-        }
-      } else if (e.key === "ArrowUp") {
-        changeFocus(true)
-      } else if (e.key === "ArrowDown") {
-        changeFocus(false)
+      },
+    };
+
+    // Event Listeners
+    $("#capacity").change(capacityPrettify)
+
+    document.addEventListener('keydown', (e) => {
+      // If ctrl key is active, look up a function to run
+      // in ctrlShortcuts depending on the key pressed.
+      if (e.ctrlKey && ctrlShortcuts[e.key]) {
+        const functionToRun = ctrlShortcuts[e.key];
+        functionToRun();
       }
     });
 
