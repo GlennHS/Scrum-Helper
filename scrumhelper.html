@@ -87,13 +87,23 @@
   <script async defer>
     let taskCount = 1;
 
-    const copyDivToClipboard = (elemID) => {
-      var range = document.createRange();
-      range.selectNode(document.getElementById(elemID));
-      window.getSelection().removeAllRanges(); // clear current selection
-      window.getSelection().addRange(range); // to select text
-      document.execCommand("copy");
-      window.getSelection().removeAllRanges(); // to deselect
+    const copyDivToClipboard = () => {
+
+      if (!navigator.userAgent.includes("Firefox")) {
+        var range = document.createRange();
+        range.selectNode(document.getElementById("output"));
+        window.getSelection().removeAllRanges(); // clear current selection
+        window.getSelection().addRange(range); // to select text
+        document.execCommand("copy");
+        window.getSelection().removeAllRanges(); // to deselect
+      } else {
+        console.log("Using Mozilla, fallback used")
+        document.getElementById("fallback").value = document.getElementById("output").innerText
+        document.getElementById("fallback").focus()
+        document.getElementById("fallback").select()
+        document.execCommand("copy")
+      }
+      document.getElementById("output").scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
     }
 
     const createElementFromHTML = (htmlString) => {
@@ -241,6 +251,7 @@
       outElem.style.height = "";
       outElem.style.height = outElem.scrollHeight + "px"
       setStorage()
+      copyDivToClipboard()
     }
 
     const ctrlShortcuts = {
@@ -257,17 +268,7 @@
       },
       "Enter": function() {
         generateMsg();
-        setTimeout(() => {
-          if (!navigator.userAgent.includes("Mozilla")) {
-            copyDivToClipboard('output')
-          } else {
-            document.getElementById("fallback").value = document.getElementById("output").innerText
-            document.getElementById("fallback").focus()
-            document.getElementById("fallback").select()
-            document.execCommand("copy")
-          }
-          document.getElementById("output").scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
-        }, 500)
+        setTimeout(copyDivToClipboard, 500)
       },
     };
 
