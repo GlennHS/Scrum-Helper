@@ -2,21 +2,21 @@
   "tasklist": [
     {
       "name": "17567_AAAAA",
-      "blocked": "Partial",
-      "status": "Yeah"
+      "blocked": "Partial|Yes|No",
+      "status": "This is my status update"
     },
     {
       "name": "17567_AAAAA",
-      "blocked": "Partial",
-      "status": "Yeah"
+      "blocked": "Partial|Yes|No",
+      "status": "This is my status update"
     },
     {
       "name": "17567_AAAAA",
-      "blocked": "Partial",
-      "status": "Yeah"
+      "blocked": "Partial|Yes|No",
+      "status": "This is my status update"
     }
   ],
-  "capacity": "Busy",
+  "capacity": "Overloaded||Full||Busy||Medium||Light",
   "subreddits": [
     "aww",
     "blop",

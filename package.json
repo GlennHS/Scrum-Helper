@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "watch": "npx sass scrumhelper.scss scrumhelper.css -w",
-    "build": "npx sass scrumhelper.scss scrumhelper.css",
+    "watch-dark": "npx sass assets/scss/dark.scss assets/css/dark.css -w",
+    "watch-light": "npx sass assets/scss/light.scss assets/css/light.css -w",
+    "build": "npx sass assets/scss/dark.scss assets/css/dark.css && npx sass assets/scss/light.scss assets/css/light.css",
     "serve": "http-server"
   },
   "repository": {

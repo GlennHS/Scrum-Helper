@@ -9,7 +9,8 @@
   <link rel="icon" 
       type="image/png" 
       href="./favicon.png">
-  <link rel="stylesheet" href="scrumhelper.css">
+  <link rel="stylesheet" href="./assets/css/light.css">
+  <link rel="stylesheet" href="./assets/css/dark.css">
 </head>
 
 <body>
@@ -44,6 +45,7 @@
           <td>Generate message and copy it to clipboard</td>
         </tr>
       </table>
+      <button onclick="toggleTheme()">Change Theme</button>
     </div>
     <div id="output"></div>
     <div id="task-holder">
@@ -85,7 +87,7 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"
     integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
   <script async defer>
-    let taskCount = 1;
+    let taskCount = 1, usingLightTheme = true;
 
     const copyDivToClipboard = () => {
 
@@ -394,6 +396,12 @@
     window.addEventListener("beforeunload", function(e){
       setStorage()
     });
+
+    const toggleTheme = () => {
+      usingLightTheme = !usingLightTheme
+      document.querySelector("link[href='./assets/css/light.css']").disabled = usingLightTheme
+      document.querySelector("link[href='./assets/css/dark.css']").disabled = !usingLightTheme
+    }
 
     document.onload = async function() {
       checkLegacy();

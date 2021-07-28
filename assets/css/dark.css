@@ -1,0 +1,196 @@
+body {
+  font-size: 18px;
+  line-height: 20px;
+  background: #99FFFF;
+  color: #333;
+}
+body ::placeholder {
+  font-size: 18px;
+  line-height: 20px;
+}
+
+main {
+  padding: 30px 10%;
+  background: #E72176;
+  min-height: calc(100vh - 80px);
+  height: auto;
+}
+
+h2, h3, #quirks {
+  text-align: center;
+}
+
+form {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  row-gap: 10px;
+  column-gap: 10px;
+  width: 100%;
+  padding: 10px 0;
+}
+form label {
+  text-align: right;
+}
+form input[type=text] {
+  font-size: 18px;
+  line-height: 20px;
+}
+form input[type=button]:hover {
+  cursor: pointer;
+  filter: brightness(0.8);
+}
+
+#shortcuts {
+  background: #fff;
+  margin-bottom: 30px;
+  padding: 30px;
+  border: #9FF solid 1px;
+  border-radius: 5px;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#shortcuts table {
+  width: 80%;
+}
+
+#shortcuts table td {
+  border-bottom: #000 solid 1px;
+  padding: 0 10px;
+}
+
+#quirks {
+  width: auto;
+}
+
+#cute-container {
+  width: 100%;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+}
+#cute-container textarea {
+  width: 600px;
+}
+
+#cute {
+  max-width: 600px;
+  height: auto;
+  padding-bottom: 20px;
+}
+
+#output {
+  font-size: 14px !important;
+  width: 100%;
+  text-align: center;
+  padding-bottom: 20px;
+}
+
+#task-holder {
+  background: #fff;
+  border: #000 solid 2px;
+  padding: 5px;
+}
+#task-holder form label {
+  width: 10%;
+}
+#task-holder form input[type=text] {
+  background: #fbd9e8;
+  width: 65%;
+}
+#task-holder form input[type=button] {
+  flex-grow: 10;
+}
+
+#main-controls {
+  background: #fff;
+  border: #000 solid 2px;
+  width: 100%;
+}
+#main-controls label {
+  width: 10%;
+  text-align: right;
+  padding-right: 5px;
+}
+#main-controls select {
+  width: 60%;
+}
+#main-controls input[type=button] {
+  width: 10%;
+}
+
+input {
+  border: #E72176 solid 2px;
+  border-radius: 5px;
+  height: 24px;
+}
+input[name=delete] {
+  background: #f44;
+  color: #fff;
+}
+
+#fallback {
+  position: absolute;
+  left: -99999px;
+}
+
+select {
+  font-size: 18px;
+  color: black;
+}
+select.Overloaded, select option[value=overloaded] {
+  background: #E72176;
+  color: white;
+}
+select.Full, select option[value=full] {
+  background: #66d;
+  color: white;
+}
+select.Busy, select option[value=busy] {
+  background: #6d6;
+}
+select.Medium, select option[value=medium] {
+  background: #aaa;
+}
+select.Light, select option[value=light] {
+  background: #ddd;
+}
+select:focus {
+  border: blue solid 2px;
+}
+
+@media screen and (max-width: 800px) {
+  main {
+    height: auto;
+  }
+
+  form {
+    flex-flow: column;
+    row-gap: 10px;
+    column-gap: 10px;
+    width: 100%;
+    padding: 10px 0;
+  }
+  form label {
+    text-align: center !important;
+    width: 100% !important;
+  }
+  form input[type=text] {
+    font-size: 1.2em;
+    line-height: 1.3em;
+    width: 95% !important;
+  }
+  form input[type=button] {
+    width: 95% !important;
+  }
+
+  #task-holder form {
+    border-bottom: #000 solid 1px;
+  }
+}
+
+/*# sourceMappingURL=dark.css.map */

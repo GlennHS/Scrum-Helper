@@ -1,10 +1,10 @@
-$ct-pink: #E72176;
-$aether-blue: #99FFFF;
+@import '_lightVars.scss';
 
 body {
   font-size: 18px;
   line-height: 20px;
-  background: $aether-blue;
+  background: $theme-2;
+  color: $font-color;
 
   ::placeholder {
     font-size: 18px;
@@ -14,7 +14,7 @@ body {
 
 main {
   padding: 30px 10%;
-  background: $ct-pink;
+  background: $theme-1;
   min-height: calc(100vh - 80px);
   height: auto;
 }
@@ -108,7 +108,7 @@ form {
     }
 
     input[type="text"] {
-      background: lighten($ct-pink, 40%);
+      background: lighten($theme-1, 40%);
       width: 65%;
     }
 
@@ -139,7 +139,7 @@ form {
 }
 
 input {
-  border: $ct-pink solid 2px;
+  border: $theme-1 solid 2px;
   border-radius: 5px;
   height: 24px;
 
@@ -159,7 +159,7 @@ select {
   color: black;
 
   &.Overloaded, option[value="overloaded"] {
-    background: $ct-pink;
+    background: $theme-1;
     color: white;
   }
   &.Full, option[value="full"] {
