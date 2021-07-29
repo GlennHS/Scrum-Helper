@@ -4,9 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "watch-dark": "npx sass assets/scss/dark.scss assets/css/dark.css -w",
-    "watch-light": "npx sass assets/scss/light.scss assets/css/light.css -w",
-    "build": "npx sass assets/scss/dark.scss assets/css/dark.css && npx sass assets/scss/light.scss assets/css/light.css",
+    "watch": "sass -w assets/scss/:assets/css/",
+    "build": "sass assets/scss/:assets/css/",
     "serve": "http-server"
   },
   "repository": {
