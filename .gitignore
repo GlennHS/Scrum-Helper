@@ -1,0 +1,8 @@
+# Dependency directories
+node_modules/
+
+# Editor files and directories
+.idea/
+
+# OS specific files
+.DS_Store
