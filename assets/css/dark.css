@@ -1,8 +1,8 @@
 body {
   font-size: 18px;
   line-height: 20px;
-  background: #99FFFF;
-  color: #333;
+  background: #5b5b5b;
+  color: #eee;
 }
 body ::placeholder {
   font-size: 18px;
@@ -11,7 +11,7 @@ body ::placeholder {
 
 main {
   padding: 30px 10%;
-  background: #E72176;
+  background: #3a3a3a;
   min-height: calc(100vh - 80px);
   height: auto;
 }
@@ -42,15 +42,19 @@ form input[type=button]:hover {
 }
 
 #shortcuts {
-  background: #fff;
-  margin-bottom: 30px;
+  background: #5b5b5b;
+  margin-bottom: 20px;
   padding: 30px;
-  border: #9FF solid 1px;
+  border: #3a3a3a solid 1px;
   border-radius: 5px;
   display: flex;
   flex-flow: column;
   justify-content: center;
   align-items: center;
+}
+#shortcuts button {
+  font-size: 18px;
+  margin-top: 20px;
 }
 
 #shortcuts table {
@@ -64,6 +68,14 @@ form input[type=button]:hover {
 
 #quirks {
   width: auto;
+}
+
+#pre-task-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 20px;
 }
 
 #cute-container {
@@ -91,15 +103,15 @@ form input[type=button]:hover {
 }
 
 #task-holder {
-  background: #fff;
-  border: #000 solid 2px;
+  background: #5b5b5b;
+  border: #3a3a3a solid 2px;
   padding: 5px;
 }
 #task-holder form label {
   width: 10%;
 }
 #task-holder form input[type=text] {
-  background: #fbd9e8;
+  background: #a0a0a0;
   width: 65%;
 }
 #task-holder form input[type=button] {
@@ -107,8 +119,8 @@ form input[type=button]:hover {
 }
 
 #main-controls {
-  background: #fff;
-  border: #000 solid 2px;
+  background: #5b5b5b;
+  border: #5b5b5b solid 2px;
   width: 100%;
 }
 #main-controls label {
@@ -124,7 +136,7 @@ form input[type=button]:hover {
 }
 
 input {
-  border: #E72176 solid 2px;
+  border: #3a3a3a solid 2px;
   border-radius: 5px;
   height: 24px;
 }
@@ -143,7 +155,7 @@ select {
   color: black;
 }
 select.Overloaded, select option[value=overloaded] {
-  background: #E72176;
+  background: #3a3a3a;
   color: white;
 }
 select.Full, select option[value=full] {

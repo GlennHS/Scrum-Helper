@@ -1,8 +1,8 @@
 body {
   font-size: 18px;
   line-height: 20px;
-  background: #99FFFF;
-  color: #333;
+  background: #FFFFFF;
+  color: #121212;
 }
 body ::placeholder {
   font-size: 18px;
@@ -42,15 +42,19 @@ form input[type=button]:hover {
 }
 
 #shortcuts {
-  background: #fff;
-  margin-bottom: 30px;
+  background: #FFFFFF;
+  margin-bottom: 20px;
   padding: 30px;
-  border: #9FF solid 1px;
+  border: #E72176 solid 1px;
   border-radius: 5px;
   display: flex;
   flex-flow: column;
   justify-content: center;
   align-items: center;
+}
+#shortcuts button {
+  font-size: 18px;
+  margin-top: 20px;
 }
 
 #shortcuts table {
@@ -64,6 +68,14 @@ form input[type=button]:hover {
 
 #quirks {
   width: auto;
+}
+
+#pre-task-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 20px;
 }
 
 #cute-container {
@@ -91,8 +103,8 @@ form input[type=button]:hover {
 }
 
 #task-holder {
-  background: #fff;
-  border: #000 solid 2px;
+  background: #FFFFFF;
+  border: #E72176 solid 2px;
   padding: 5px;
 }
 #task-holder form label {
@@ -107,8 +119,8 @@ form input[type=button]:hover {
 }
 
 #main-controls {
-  background: #fff;
-  border: #000 solid 2px;
+  background: #FFFFFF;
+  border: #FFFFFF solid 2px;
   width: 100%;
 }
 #main-controls label {

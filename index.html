@@ -18,7 +18,7 @@
     <h2>Scrum Helper: It Probably Works™</h2>
     <h3 id="egg">Asynchronous coding hurts my head edition!</h3>
     <div id="shortcuts">
-      <p id="quirks"><em><strong>Known Quirks:</strong> In Firefox if you Ctrl+Enter while focused on capacity it won't copy to clipboard</em></p>
+      <p id="quirks"><em><strong>Known Quirks:</strong> In Firefox if you Ctrl+Enter while focused on capacity it won't copy to clipboard.</em></p>
       <table>
         <tr>
           <td><strong>Ctrl+#</strong></td>
@@ -48,6 +48,10 @@
       <button onclick="toggleTheme()">Change Theme</button>
     </div>
     <div id="output"></div>
+    <div id="pre-task-details">
+      <label for="username">Your Name:</label>
+      <input type="text" name="username" placeholder="Dan Brown">
+    </div>
     <div id="task-holder">
       <form id="task-1">
         <label for="taskname">Clarizen Task:</label>
@@ -79,15 +83,15 @@
     </form>
     <br />
     <div id="cute-container">
-      <img id="cute" src="http://placekitten.com/200/200" />
-      <textarea id="subreddit-list" placeholder="aww, rarepuppers, blop, blep, sploot"></textarea>
+      <img id="cute" src="https://placekitten.com/200/200" />
+      <!-- <textarea id="subreddit-list" placeholder="aww, rarepuppers, blop, blep, sploot"></textarea> -->
     </div>
     <textarea tabindex="-1" id="fallback"></textarea>
   </main>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"
     integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
   <script async defer>
-    let taskCount = 1, usingLightTheme = true;
+    let taskCount = 1, usingLightTheme = false;
 
     const copyDivToClipboard = () => {
 
@@ -128,7 +132,8 @@
         let storageJSON = {
           "tasklist": [],
           "capacity": "Low",
-          "subreddits": []
+          "subreddits": [],
+          "theme": "pastel"
         }
         $("#task-holder")[0].querySelectorAll("form").forEach(form => {
           storageJSON.tasklist.push({
@@ -138,14 +143,16 @@
           })
         })
         storageJSON.capacity = $("#capacity").val()
-        storageJSON.subreddits = nullCheck($("#subreddit-list").val()).split(",")
+        // storageJSON.subreddits = nullCheck($("#subreddit-list").val()).split(",")
+        storageJSON.username = document.querySelector('input[name="username"]').value
+        storageJSON.theme = usingLightTheme ? "pastel" : "dark"
         localStorage.setItem("tasklistV2", JSON.stringify(storageJSON))
       } catch(e) { console.log(e); }
     }
 
     const getStorage = () => {
       try {
-        let storedJSON = JSON.parse(localStorage.getItem("tasklistV2"))
+        let storedJSON = JSON.parse(localStorage.getItem("tasklistV2")) || "John Doe"
         let subredditList = storedJSON.subreddits
         let capacityVal = storedJSON.capacity
         $("#task-holder")[0].innerHTML = ""
@@ -157,9 +164,15 @@
           taskElem.querySelector("select[name='blocked']").value = t.blocked
         })
         $("#capacity").val(storedJSON.capacity)
-        $("#subreddit-list").val(storedJSON.subreddits.join(","))
-        subredditListReady = true;
+        // $("#subreddit-list").val(storedJSON.subreddits.join(","))
+        // subredditListReady = true;
         capacityPrettify()
+        if(storedJSON.username != undefined) {
+          document.querySelector('input[name="username"]').value = storedJSON.username
+        }
+        if(storedJSON.theme == "pastel") {
+          toggleTheme()
+        }
       } catch(e) { console.log(e); }
     }
 
@@ -227,7 +240,12 @@
     const generateMsg = () => {
       let outElem = document.getElementById("output"),
         numBlocked = 0,
-        msg = ""
+        msg = "",
+        name = $('input[name="username"]').val().trim();
+
+      if(name !== "" && name !== "John Doe") {
+        msg += `<strong>${name}</strong><br/><strong>${(new Date()).toLocaleDateString('ko-KR')}</strong><br/><br/>`
+      }
 
       $("#task-holder")[0].querySelectorAll("form").forEach(form => {
         const tName = form.querySelector("input[name='taskname']").value;
@@ -319,6 +337,8 @@
         "Caches are like hugs. Best when warm <3",
         "Now sponsored by absolutely no one!",
         "If it ain't broke, Seabrook's not touched it yet",
+        "Now with theming, you're welcome Seabrook",
+        `Proudly remembering Dan B for ${Math.floor((Date.now() - Date.parse("2021-09-30")) / 86400000)} day(s)`
       ]
       document.getElementById("egg").innerText = `(${vaguelyAmusing[Math.floor(Math.random() * vaguelyAmusing.length)]})`
     })
@@ -365,46 +385,17 @@
       }
     }
 
-    const checkLegacy = () => {
-      try {
-        let tasklistV2 = {
-          "tasklist": [],
-          "capacity": "Low",
-          "subreddits": ["rarepuppers", "blep", "blop"]
-        }
-        if(localStorage.getItem("tasklist")) {
-          let tasklist = localStorage.getItem("tasklist").split("###")
-          let capacityVal = tasklist.pop()
-          $("#task-holder")[0].innerHTML = ""
-          tasklist.forEach((t) => {
-            let tValues = t.split("||")
-            tasklistV2.tasklist.push({
-              "name": tValues[0],
-              "status": tValues[1],
-              "blocked": tValues[2]
-            })
-          })
-          tasklistV2.capacity = capacityVal
-          localStorage.setItem("tasklistV2", JSON.stringify(tasklistV2))
-          localStorage.removeItem("tasklist")
-        }
-      } catch(e) {
-        console.log(e)
-      }
-    }
-
     window.addEventListener("beforeunload", function(e){
       setStorage()
     });
 
     const toggleTheme = () => {
-      usingLightTheme = !usingLightTheme
       document.querySelector("link[href='./assets/css/light.css']").disabled = usingLightTheme
       document.querySelector("link[href='./assets/css/dark.css']").disabled = !usingLightTheme
+      usingLightTheme = !usingLightTheme
     }
 
     document.onload = async function() {
-      checkLegacy();
       getStorage();
       //scrapeFromReddit();
     }()

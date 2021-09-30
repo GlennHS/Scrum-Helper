@@ -1,5 +1,3 @@
-@import '_lightVars.scss';
-
 body {
   font-size: 18px;
   line-height: 20px;
@@ -48,15 +46,20 @@ form {
 }
 
 #shortcuts {
-  background: #fff;
-  margin-bottom: 30px;
+  background: $theme-2;
+  margin-bottom: 20px;
   padding: 30px;
-  border: #9FF solid 1px;
+  border: $theme-1 solid 1px;
   border-radius: 5px;
   display: flex;
   flex-flow: column;
   justify-content: center;
   align-items: center;
+
+  button {
+    font-size: 18px;
+    margin-top: 20px;
+  }
 }
 
 #shortcuts table {
@@ -70,6 +73,14 @@ form {
 
 #quirks {
   width: auto;
+}
+
+#pre-task-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 20px;
 }
 
 #cute-container {
@@ -98,8 +109,8 @@ form {
 }
 
 #task-holder {
-  background: #fff;
-  border: #000 solid 2px;
+  background: $theme-2;
+  border: $theme-1 solid 2px;
   padding: 5px;
 
   form {
@@ -119,8 +130,8 @@ form {
 }
 
 #main-controls {
-  background: #fff;
-  border: #000 solid 2px;
+  background: $theme-2;
+  border: $theme-2 solid 2px;
   width: 100%;
 
   label {
