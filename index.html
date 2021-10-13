@@ -8,9 +8,10 @@
   <title>Scrum Helper</title>
   <link rel="icon" 
       type="image/png" 
-      href="./favicon.png">
+      href="../favicon.png">
   <link rel="stylesheet" href="./assets/css/light.css">
   <link rel="stylesheet" href="./assets/css/dark.css">
+  <link rel="stylesheet" href="./assets/css/spook.css">
 </head>
 
 <body>
@@ -83,15 +84,15 @@
     </form>
     <br />
     <div id="cute-container">
-      <img id="cute" src="https://placekitten.com/200/200" />
-      <!-- <textarea id="subreddit-list" placeholder="aww, rarepuppers, blop, blep, sploot"></textarea> -->
+      <img id="cute" src="https://cataas.com/cat/cute" style="width: 200px; height: 200px;"/>
     </div>
     <textarea tabindex="-1" id="fallback"></textarea>
   </main>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"
     integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
   <script async defer>
-    let taskCount = 1, usingLightTheme = false;
+    let taskCount = 1, chosenTheme = "dark";
+    const themes = ["light", "dark", "spook"];
 
     const copyDivToClipboard = () => {
 
@@ -145,7 +146,7 @@
         storageJSON.capacity = $("#capacity").val()
         // storageJSON.subreddits = nullCheck($("#subreddit-list").val()).split(",")
         storageJSON.username = document.querySelector('input[name="username"]').value
-        storageJSON.theme = usingLightTheme ? "pastel" : "dark"
+        storageJSON.theme = chosenTheme
         localStorage.setItem("tasklistV2", JSON.stringify(storageJSON))
       } catch(e) { console.log(e); }
     }
@@ -170,9 +171,8 @@
         if(storedJSON.username != undefined) {
           document.querySelector('input[name="username"]').value = storedJSON.username
         }
-        if(storedJSON.theme == "pastel") {
-          toggleTheme()
-        }
+        chosenTheme = storedJSON.theme;
+        setTheme();
       } catch(e) { console.log(e); }
     }
 
@@ -343,61 +343,32 @@
       document.getElementById("egg").innerText = `(${vaguelyAmusing[Math.floor(Math.random() * vaguelyAmusing.length)]})`
     })
 
-    async function sanitiseSubreddits(subredditList) {
-      return await subredditList.filter( async (sub) => {
-        res = await fetch(`https://www.reddit.com/r/${subredditList[Math.floor(Math.random() * subredditList.length)]}/top.json`)
-        res = res.json()
-        try {
-          //alert(res.data.after)
-          if(res.data.after != "") {
-            alert(`Checked ${sub}. Response`)
-            return true;
-          }
-        } catch {
-          return false;
-        }
-      })
-    }
-
-    async function scrapeFromReddit() {
-      let notChosen = true, tmp, subredditList
-      while(notChosen) {
-        subredditList = await nullCheck($('#subreddit-list').val().split(","))
-        subredditList = await sanitiseSubreddits(subredditList)
-        alert(`subList: ${subredditList}`)
-        if(subredditList.length === 0) { subredditList = ["rarepuppers"]}
-        subredditList = subredditList.map(s => s.trim() )
-        while(notChosen) {
-          try {
-            await fetch(`https://www.reddit.com/r/${subredditList[Math.floor(Math.random() * subredditList.length)]}/top.json`)
-              .then( (res) => res.json())
-              .then( (res) => {
-                try {
-                  while(notChosen) {
-                    tmp = res.data.children[Math.floor(Math.random() * res.data.children.length)]
-                    if(tmp.data.post_hint == "image") { notChosen = false }
-                  }
-                } catch (e) {console.error(e)}
-                $('#cute').attr("src", tmp.data.preview.images[0].source.url.replace("&amp;", "&"))
-              })
-          } catch {}
-        }
-      }
-    }
-
     window.addEventListener("beforeunload", function(e){
       setStorage()
     });
 
     const toggleTheme = () => {
-      document.querySelector("link[href='./assets/css/light.css']").disabled = usingLightTheme
-      document.querySelector("link[href='./assets/css/dark.css']").disabled = !usingLightTheme
-      usingLightTheme = !usingLightTheme
+      chosenTheme = themes[(themes.indexOf(chosenTheme) + 1) % 3];
+      setTheme()
+    }
+
+    const setTheme = () => {
+      Array.from(document.querySelectorAll("link[rel='stylesheet']")).forEach(e => e.disabled = true)
+      document.querySelector(`link[href='./assets/css/${chosenTheme}.css']`).disabled = false;
+    }
+
+    const legacyTasklistHandling = () => {
+      try {
+        let storedJSON = JSON.parse(localStorage.getItem("tasklistV2")) || "John Doe"
+        if(typeof storedJSON.theme == "boolean") {
+          chosenTheme = storedJSON.theme ? "light" : "dark"
+        }
+      } catch {}
     }
 
     document.onload = async function() {
+      legacyTasklistHandling();
       getStorage();
-      //scrapeFromReddit();
     }()
   </script>
 </body>
