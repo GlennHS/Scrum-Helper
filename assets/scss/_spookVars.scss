@@ -1,3 +1,22 @@
-$theme-1: #ff7b00;
-$theme-2: #fdc57b;
+@use 'sass:color';
+
+@import url('https://fonts.googleapis.com/css2?family=Creepster&family=Griffy&display=swap');
+
+$spoop-1: #ff7b00;
+$spoop-2: #5c3a0f;
 $font-color: #000;
+
+$body-bg: color.scale($spoop-2, $lightness: 50%);
+$main-container-bg: color.scale($spoop-1, $lightness: 50%);
+$task-bg: color.scale($spoop-1, $lightness: 30%);
+$border-color: $spoop-1;
+
+$body-font-color: #000;
+$section-font-color: #000;
+$font-emphasis-color: $spoop-2;
+
+$font-h1: bolder 48px / 52px 'Griffy';
+$font-h2: bold 28px / 48px 'Griffy';
+$font-h3: 28px / 32px 'Griffy';
+$body-font: 16px / 18px 'Creepster';
+$body-font-emph: italic 16px / 18px 'Creepster';

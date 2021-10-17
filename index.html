@@ -9,15 +9,17 @@
   <link rel="icon" 
       type="image/png" 
       href="../favicon.png">
-  <link rel="stylesheet" href="./assets/css/light.css">
-  <link rel="stylesheet" href="./assets/css/dark.css">
-  <link rel="stylesheet" href="./assets/css/spook.css">
+  <link rel="stylesheet" href="./assets/fontawesome/css/all.min.css">
+  <link rel="stylesheet" theme href="./assets/css/light.css">
+  <link rel="stylesheet" theme href="./assets/css/dark.css">
+  <link rel="stylesheet" theme href="./assets/css/spook.css">
+  <script defer src="/assets/fontawesome/js/all.min.js"></script>
 </head>
 
 <body>
   <main>
-    <h2>Scrum Helper: It Probably Works™</h2>
-    <h3 id="egg">Asynchronous coding hurts my head edition!</h3>
+    <h1>Scrum Helper: It Probably Works™</h1>
+    <h2 id="egg">Asynchronous coding hurts my head edition!</h2>
     <div id="shortcuts">
       <p id="quirks"><em><strong>Known Quirks:</strong> In Firefox if you Ctrl+Enter while focused on capacity it won't copy to clipboard.</em></p>
       <table>
@@ -54,7 +56,11 @@
       <input type="text" name="username" placeholder="Dan Brown">
     </div>
     <div id="task-holder">
-      <form id="task-1">
+      <div taskID="1" id="task-1" class="task">
+        <div class="priority priority-top"><i class="fas fa-level-up-alt"></i></div>
+        <div class="priority priority-up"><i class="fas fa-long-arrow-alt-up"></i></div>
+        <div class="priority priority-down"><i class="fas fa-long-arrow-alt-down"></i></div>
+        <div class="priority priority-bottom"><i class="fas fa-level-down-alt"></i></div>
         <label for="taskname">Clarizen Task:</label>
         <input type="text" autofocus name="taskname" placeholder="Clarizen Task Name">
         <label for="blocked">Blocked?</label>
@@ -66,7 +72,7 @@
         <label for="status">Status Update:</label>
         <input type="text" name="status" placeholder="Status Update">
         <input type="button" name="delete" value="Delete Task">
-      </form>
+      </div>
     </div>
     <br />
     <form id="main-controls">
@@ -84,15 +90,23 @@
     </form>
     <br />
     <div id="cute-container">
-      <img id="cute" src="https://cataas.com/cat/cute" style="width: 200px; height: 200px;"/>
+      <img id="cute" src="https://cataas.com/cat/cute" style="width: 200px; height: 200px;object-fit: cover;"/>
     </div>
     <textarea tabindex="-1" id="fallback"></textarea>
   </main>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
-    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="assets/jquery-3.6.0.min.js"></script>
   <script async defer>
-    let taskCount = 1, chosenTheme = "dark";
+    let chosenTheme = "dark";
     const themes = ["light", "dark", "spook"];
+
+    let tasks = [];
+
+    tasks.push({
+      "id": tasks.length,
+      "name": "",
+      "status": "",
+      "blocked": "No"
+    })
 
     const copyDivToClipboard = () => {
 
@@ -122,12 +136,6 @@
 
     const nullCheck = (v) => { return v ? v : "" }
 
-    /**
-     * Storage Functions 
-     * Storage formatted TASKNAME||TASKSTATUS||BLOCKED
-     * "###" Delimited
-     * Capacity at the end
-     */
     const setStorage = () => {
       try {
         let storageJSON = {
@@ -136,11 +144,11 @@
           "subreddits": [],
           "theme": "pastel"
         }
-        $("#task-holder")[0].querySelectorAll("form").forEach(form => {
+        $("#task-holder")[0].querySelectorAll("div").forEach(div => {
           storageJSON.tasklist.push({
-            "name": nullCheck(form.querySelector("input[name='taskname']").value),
-            "status": nullCheck(form.querySelector("input[name='status']").value),
-            "blocked": form.querySelector("select[name='blocked']").value
+            "name": nullCheck(div.querySelector("input[name='taskname']").value),
+            "status": nullCheck(div.querySelector("input[name='status']").value),
+            "blocked": div.querySelector("select[name='blocked']").value
           })
         })
         storageJSON.capacity = $("#capacity").val()
@@ -179,17 +187,17 @@
     const capacityPrettify = () => { $("#capacity")[0].classList = $("#capacity").val(); }
 
     const changeFocus = (movinOnUp) => {
-      const currFormID = $("input:focus").parent("form").attr("id");
-      const forms = Array.from(document.querySelectorAll("#task-holder form"))
-      for (let i = 0; i < forms.length; i++) {
-        if (forms[i].id == currFormID) {
+      const currDivID = $("input:focus").parent("div").attr("id");
+      const divs = Array.from(document.querySelectorAll("#task-holder div"))
+      for (let i = 0; i < divs.length; i++) {
+        if (divs[i].id == currDivID) {
           if (movinOnUp) {
             try {
-              forms[i - 1].querySelector("input[name='taskname']").focus()
+              divs[i - 1].querySelector("input[name='taskname']").focus()
             } catch {}
           } else {
             try {
-              forms[i + 1].querySelector("input[name='taskname']").focus()
+              divs[i + 1].querySelector("input[name='taskname']").focus()
             } catch {}
           }
         }
@@ -198,10 +206,10 @@
 
     const deleteTask = () => {
       try {
-        let focussedBtn = document.querySelector("input[name='delete']:focus")
-        $(focussedBtn.parentElement.previousSibling).children("input[name='taskname']").focus();
-        focussedBtn.parentElement.remove();
-        deleted = true
+        let focussedTask = $("input[name='delete']:focus").parent(".task")
+        $(focussedTask.previousSibling).children("input[name='taskname']").focus(); // Sets focus to previous task's taskname input
+        tasks.splice(tasks.findIndex(v => v.taskID == focussedTask.prop("taskID")), 1)
+        generateTasksFromTasklist();
       } catch { }
     }
 
@@ -214,21 +222,43 @@
     }
 
     const addTask = () => {
-      taskCount++;
+      tasks.push({
+        "id": tasks.length + 1,
+        "name": "",
+        "status": "",
+        "blocked": "No"
+      })
+      addTaskElement()
+    }
+
+    const addTaskElement = (t = undefined) => {
+      let task;
+      if(!t) {
+        task = {
+          "id": tasks.length + 1,
+          "name": "",
+          "status": "",
+          "blocked": "No"
+        }
+      } else { task = t; }
       let newTask = createElementFromHTML(`
-      <form id="task-${taskCount}">
+      <div taskID="${task.ID}" id="task-${tasks.length}" class="task">
+        <div class="priority priority-top"><i class="fas fa-level-up-alt"></i></div>
+        <div class="priority priority-up"><i class="fas fa-long-arrow-alt-up"></i></div>
+        <div class="priority priority-down"><i class="fas fa-long-arrow-alt-down"></i></div>
+        <div class="priority priority-bottom"><i class="fas fa-level-down-alt"></i></div>
         <label for="taskname">Clarizen Task:</label>
-        <input type="text" name="taskname" placeholder="Clarizen Task Name">
+        <input type="text" autofocus name="taskname" placeholder="Clarizen Task Name" value="${task.name}">
         <label for="blocked">Blocked?</label>
-        <select name="blocked">
+        <select name="blocked" value="${task.blocked}">
           <option value="No">No</option>
           <option value="Partial">Partial</option>
           <option value="Yes">Yes</option>
         </select>
         <label for="status">Status Update:</label>
-        <input type="text" name="status" placeholder="Status Update">
+        <input type="text" name="status" placeholder="Status Update" value="${task.status}">
         <input type="button" name="delete" value="Delete Task">
-      </form>
+      </div>
       `)
       $("#task-holder").append(newTask);
 
@@ -236,6 +266,13 @@
 
       $(newTask).children("input[name='taskname']").focus();
     };
+
+    const generateTasksFromTasklist = () => {
+      $("#task-holder")[0].innerHTML = ""
+      tasks.forEach( task => {
+        addTaskElement(task);
+      })
+    }
 
     const generateMsg = () => {
       let outElem = document.getElementById("output"),
@@ -247,10 +284,10 @@
         msg += `<strong>${name}</strong><br/><strong>${(new Date()).toLocaleDateString('ko-KR')}</strong><br/><br/>`
       }
 
-      $("#task-holder")[0].querySelectorAll("form").forEach(form => {
-        const tName = form.querySelector("input[name='taskname']").value;
-        const tStatus = form.querySelector("input[name='status']").value;
-        const tBlocked = form.querySelector("select[name='blocked']").value;
+      $("#task-holder").find("div").each(div => {
+        const tName = div.find("input[name='taskname']").val();
+        const tStatus = div.find("input[name='status']").val();
+        const tBlocked = div.find("select[name='blocked']").val();
 
         if(!(tBlocked === "No")) { numBlocked++; }
 
@@ -281,7 +318,7 @@
       "ArrowDown": () => changeFocus(false),
       "/": function() {
         if($("#capacity")[0] === document.activeElement) {
-          $("#task-holder form:last-child input[name='taskname']").focus()
+          $("#task-holder div:last-child input[name='taskname']").focus()
         } else {
           $("#capacity").focus();
         }
@@ -306,6 +343,13 @@
 
     $("input[name='addTask']").click(addTask)
 
+    $('.priority').on('click', () => {
+      const taskNum = $()
+      if($(this).hasClass("priority-top")) {
+
+      }
+    })
+
     document.querySelectorAll("input[name='delete']").forEach(elem => {
       elem.onclick = deleteTask
     })
@@ -315,7 +359,7 @@
       document.getElementById("output").scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
     })
 
-    $('h2').click( () => {
+    $('h1').click( () => {
       const vaguelyAmusing = [
         "Now with 20% less sodium!",
         "No animals were harmed in the making of this site!",
@@ -338,7 +382,7 @@
         "Now sponsored by absolutely no one!",
         "If it ain't broke, Seabrook's not touched it yet",
         "Now with theming, you're welcome Seabrook",
-        `Proudly remembering Dan B for ${Math.floor((Date.now() - Date.parse("2021-09-30")) / 86400000)} day(s)`
+        `Proudly remembering Dan B for ${Math.floor((Date.now() - Date.parse("2021-09-30")) / 86400000)} days`
       ]
       document.getElementById("egg").innerText = `(${vaguelyAmusing[Math.floor(Math.random() * vaguelyAmusing.length)]})`
     })
@@ -353,8 +397,8 @@
     }
 
     const setTheme = () => {
-      Array.from(document.querySelectorAll("link[rel='stylesheet']")).forEach(e => e.disabled = true)
-      document.querySelector(`link[href='./assets/css/${chosenTheme}.css']`).disabled = false;
+      Array.from(document.querySelectorAll("link[theme]")).forEach(e => e.disabled = true)
+      document.querySelector(`link[href*='/${chosenTheme}.css']`).disabled = false;
     }
 
     const legacyTasklistHandling = () => {
@@ -368,7 +412,8 @@
 
     document.onload = async function() {
       legacyTasklistHandling();
-      getStorage();
+      setTheme();
+      //getStorage();
     }()
   </script>
 </body>

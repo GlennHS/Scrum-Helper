@@ -1,8 +1,8 @@
+@import url("https://fonts.googleapis.com/css2?family=Andada+Pro:ital,wght@0,400;0,700;1,400;1,700&family=Hind+Siliguri&display=swap");
 body {
-  font-size: 18px;
-  line-height: 20px;
-  background: #FFFFFF;
-  color: #121212;
+  background: #fde9f1;
+  color: #000;
+  font: 16px/20px "Hind Siliguri";
 }
 body ::placeholder {
   font-size: 18px;
@@ -11,41 +11,72 @@ body ::placeholder {
 
 main {
   padding: 30px 10%;
-  background: #E72176;
+  background: #fad3e4;
   min-height: calc(100vh - 80px);
   height: auto;
 }
 
-h2, h3, #quirks {
-  text-align: center;
+h1 {
+  font: bolder 48px/52px "Andada Pro";
 }
 
-form {
-  display: flex;
-  flex-flow: row wrap;
-  align-items: center;
-  row-gap: 10px;
-  column-gap: 10px;
-  width: 100%;
-  padding: 10px 0;
+h2 {
+  font: bold 28px/48px "Andada Pro";
 }
-form label {
-  text-align: right;
+
+h3 {
+  font: 28px/32px "Andada Pro";
 }
-form input[type=text] {
-  font-size: 18px;
-  line-height: 20px;
+
+h1, h2, h3 #quirks {
+  text-align: center;
+  margin: 5px 0;
 }
-form input[type=button]:hover {
+
+input {
+  border: #e72176 solid 2px;
+  border-radius: 5px;
+  height: 24px;
+}
+input[name=delete] {
+  background: #f44;
+  color: #fff;
+}
+
+button, input[type=button] {
   cursor: pointer;
-  filter: brightness(0.8);
+}
+
+select {
+  font-size: 18px;
+  color: black;
+}
+select.Overloaded, select option[value=overloaded] {
+  background: #f00;
+  color: white;
+}
+select.Full, select option[value=full] {
+  background: #66d;
+  color: white;
+}
+select.Busy, select option[value=busy] {
+  background: #6d6;
+}
+select.Medium, select option[value=medium] {
+  background: #aaa;
+}
+select.Light, select option[value=light] {
+  background: #ddd;
+}
+select:focus {
+  border: blue solid 2px;
 }
 
 #shortcuts {
-  background: #FFFFFF;
+  background: #ee649f;
   margin-bottom: 20px;
   padding: 30px;
-  border: #E72176 solid 1px;
+  border: #e72176 solid 1px;
   border-radius: 5px;
   display: flex;
   flex-flow: column;
@@ -64,6 +95,7 @@ form input[type=button]:hover {
 #shortcuts table td {
   border-bottom: #000 solid 1px;
   padding: 0 10px;
+  line-height: 27px;
 }
 
 #quirks {
@@ -102,77 +134,97 @@ form input[type=button]:hover {
   padding-bottom: 20px;
 }
 
-#task-holder {
-  background: #FFFFFF;
-  border: #E72176 solid 2px;
+#task-holder .task {
+  background: #ee649f;
+  border: #e72176 solid 2px;
   padding: 5px;
+  display: grid;
+  grid-template: repeat(4, 1fr)/repeat(12, 1fr);
+  grid-template-areas: "pt tl tl tt tt tt tt tt tt bl bl bl" "pu tl tl tt tt tt tt tt tt bs bs bs" "pd sl sl st st st st st st bs bs bs" "pb sl sl st st st st st st db db db";
+  align-items: center;
 }
-#task-holder form label {
-  width: 10%;
+#task-holder .task label {
+  text-align: center;
+  padding: 0 20px;
+  align-self: center;
 }
-#task-holder form input[type=text] {
-  background: #fbd9e8;
-  width: 65%;
+#task-holder .task .priority {
+  padding: 3px;
+  background: #f17bad;
+  text-align: center;
+  font-size: 24px;
+  color: #00fcf3;
 }
-#task-holder form input[type=button] {
-  flex-grow: 10;
+#task-holder .task .priority:hover {
+  transition: 0.5s ease;
+  padding-left: 30%;
+  background: #c61561;
+  color: #5efff9;
+  border-left: solid 10px #e72176;
+  cursor: pointer;
+}
+#task-holder .task .priority-top {
+  grid-area: pt;
+}
+#task-holder .task .priority-up {
+  grid-area: pu;
+}
+#task-holder .task .priority-down {
+  grid-area: pd;
+}
+#task-holder .task .priority-botoom {
+  grid-area: pb;
+}
+#task-holder .task label[for=taskname] {
+  grid-area: tl;
+}
+#task-holder .task label[for=status] {
+  grid-area: sl;
+}
+#task-holder .task label[for=blocked] {
+  grid-area: bl;
+}
+#task-holder .task select[name=blocked] {
+  grid-area: bs;
+  width: 40%;
+  margin: 0 30%;
+  text-align: center;
+}
+#task-holder .task input[name=taskname] {
+  grid-area: tt;
+}
+#task-holder .task input[name=status] {
+  grid-area: st;
+}
+#task-holder .task input[name=delete] {
+  grid-area: db;
+  width: 60%;
+  margin: 0 20%;
+  align-self: center;
 }
 
 #main-controls {
-  background: #FFFFFF;
-  border: #FFFFFF solid 2px;
+  background: #ee649f;
+  border: #e72176 solid 2px;
   width: 100%;
+  padding: 15px;
+  display: grid;
+  grid-template: 100%/10% 60% 15% 15%;
+  justify-items: center;
+  align-items: center;
 }
 #main-controls label {
-  width: 10%;
   text-align: right;
   padding-right: 5px;
 }
-#main-controls select {
-  width: 60%;
-}
 #main-controls input[type=button] {
-  width: 10%;
-}
-
-input {
-  border: #E72176 solid 2px;
-  border-radius: 5px;
-  height: 24px;
-}
-input[name=delete] {
-  background: #f44;
-  color: #fff;
+  justify-self: stretch;
+  margin: 0 20px;
 }
 
 #fallback {
   position: absolute;
   left: -99999px;
-}
-
-select {
-  font-size: 18px;
-  color: black;
-}
-select.Overloaded, select option[value=overloaded] {
-  background: #E72176;
-  color: white;
-}
-select.Full, select option[value=full] {
-  background: #66d;
-  color: white;
-}
-select.Busy, select option[value=busy] {
-  background: #6d6;
-}
-select.Medium, select option[value=medium] {
-  background: #aaa;
-}
-select.Light, select option[value=light] {
-  background: #ddd;
-}
-select:focus {
-  border: blue solid 2px;
 }
 
 @media screen and (max-width: 800px) {
