@@ -1,8 +1,9 @@
+@use 'sass:color';
+
 body {
-  font-size: 18px;
-  line-height: 20px;
-  background: $theme-2;
-  color: $font-color;
+  background: $body-bg;
+  color: $body-font-color;
+  font: $body-font;
 
   ::placeholder {
     font-size: 18px;
@@ -12,44 +13,76 @@ body {
 
 main {
   padding: 30px 10%;
-  background: $theme-1;
+  background: $main-container-bg;
   min-height: calc(100vh - 80px);
   height: auto;
 }
 
-h2, h3, #quirks {
-  text-align: center;
+h1 {
+  font: $font-h1;
 }
 
-form {
-  display: flex;
-  flex-flow: row wrap;
-  align-items: center;
-  row-gap: 10px;
-  column-gap: 10px;
-  width: 100%;
-  padding: 10px 0;
+h2 {
+  font: $font-h2;
+}
 
-  label {
-    text-align: right;
+h3 {
+  font: $font-h3;
+}
+
+h1, h2, h3 #quirks {
+  text-align: center;
+  margin: 5px 0;
+}
+
+input {
+  border: $border-color solid 2px;
+  border-radius: 5px;
+  height: 24px;
+
+  &[name="delete"] {
+    background: #f44;
+    color: #fff;
+  }
+}
+
+button, input[type="button"] {
+  cursor: pointer;
+}
+
+// Capacity Select
+select {
+  font-size: 18px;
+  color: black;
+
+  &.Overloaded, option[value="overloaded"] {
+    background: #f00;
+    color: white;
+  }
+  &.Full, option[value="full"] {
+    background: #66d;
+    color: white;
+  }
+  &.Busy, option[value="busy"] {
+    background: #6d6;
+  }
+  &.Medium, option[value="medium"] {
+    background: #aaa;
+  }
+  &.Light, option[value="light"] {
+    background: #ddd;
   }
 
-  input[type="text"] {
-    font-size: 18px;
-    line-height: 20px;
-  }
-  
-  input[type="button"]:hover {
-    cursor: pointer;
-    filter: brightness(0.8);
+  &:focus {
+    border: blue solid 2px;
   }
 }
 
 #shortcuts {
-  background: $theme-2;
+  background: $task-bg;
   margin-bottom: 20px;
   padding: 30px;
-  border: $theme-1 solid 1px;
+  border: $border-color solid 1px;
   border-radius: 5px;
   display: flex;
   flex-flow: column;
@@ -69,6 +102,7 @@ form {
 #shortcuts table td {
   border-bottom: #000 solid 1px;
   padding: 0 10px;
+  line-height: 27px;
 }
 
 #quirks {
@@ -108,88 +142,118 @@ form {
   padding-bottom: 20px;
 }
 
-#task-holder {
-  background: $theme-2;
-  border: $theme-1 solid 2px;
+#task-holder .task {
+  background: $task-bg;
+  border: $border-color solid 2px;
   padding: 5px;
+  display: grid;
+  grid-template: repeat(4, 1fr) / repeat(12, 1fr);
+  grid-template-areas: 
+    "pt tl tl tt tt tt tt tt tt bl bl bl"
+    "pu tl tl tt tt tt tt tt tt bs bs bs"
+    "pd sl sl st st st st st st bs bs bs"
+    "pb sl sl st st st st st st db db db";
+  align-items: center;
 
-  form {
-    label {
-      width: 10%;
-    }
+  label {
+    text-align: center;
+    padding: 0 20px;
+    align-self: center;
+  }
 
-    input[type="text"] {
-      background: lighten($theme-1, 40%);
-      width: 65%;
-    }
+  .priority {
+    padding: 3px;
+    background: color.scale($task-bg, $lightness: 15%);
+    text-align: center;
+    font-size: 24px;
+    color: color.scale($font-emphasis-color, $lightness: 20%);
+  }
 
-    input[type="button"] {
-      flex-grow: 10;
-    }
+  .priority:hover {
+    transition: 0.5s ease;
+    padding-left: 30%;
+    background: color.scale($task-bg, $lightness: -35%);
+    color: color.scale($font-emphasis-color, $lightness: 50%);
+    border-left: solid 10px $border-color;
+    cursor: pointer;
+  }
+
+  .priority-top {
+    grid-area: pt;
+  }
+
+  .priority-up {
+    grid-area: pu;
+  }
+
+  .priority-down {
+    grid-area: pd;
+  }
+
+  .priority-botoom {
+    grid-area: pb;
+  }
+
+  label[for="taskname"] {
+    grid-area: tl;
+  }
+
+  label[for="status"] {
+    grid-area: sl;
+  }
+
+  label[for="blocked"] {
+    grid-area: bl;
+  }
+
+  select[name="blocked"] {
+    grid-area: bs;
+    width: 40%;
+    margin: 0 30%;
+    text-align: center;
+  }
+
+  input[name="taskname"] {
+    grid-area: tt;
+  }
+
+  input[name="status"] {
+    grid-area: st;
+  }
+
+  input[name="delete"] {
+    grid-area: db;
+    width: 60%;
+    margin: 0 20%;
+    align-self: center;
   }
 }
 
 #main-controls {
-  background: $theme-2;
-  border: $theme-2 solid 2px;
+  background: $task-bg;
+  border: $border-color solid 2px;
   width: 100%;
+  padding: 15px;
+  display: grid;
+  grid-template: 100% / 10% 60% 15% 15%;
+  justify-items: center;
+  align-items: center;
+
 
   label {
-    width: 10%;
     text-align: right;
     padding-right: 5px;
   }
 
-  select {
-    width: 60%;
-  }
-
   input[type="button"] {
-    width: 10%;
-  }
-}
-
-input {
-  border: $theme-1 solid 2px;
-  border-radius: 5px;
-  height: 24px;
-
-  &[name="delete"] {
-    background: #f44;
-    color: #fff;
+    justify-self: stretch;
+    margin: 0 20px;
   }
 }
 
 #fallback {
   position: absolute;
   left: -99999px;
-}
-
-select {
-  font-size: 18px;
-  color: black;
-
-  &.Overloaded, option[value="overloaded"] {
-    background: $theme-1;
-    color: white;
-  }
-  &.Full, option[value="full"] {
-    background: #66d;
-    color: white;
-  }
-  &.Busy, option[value="busy"] {
-    background: #6d6;
-  }
-  &.Medium, option[value="medium"] {
-    background: #aaa;
-  }
-  &.Light, option[value="light"] {
-    background: #ddd;
-  }
-
-  &:focus {
-    border: blue solid 2px;
-  }
 }
 
 @media screen and (max-width: 800px) {
