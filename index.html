@@ -13,7 +13,7 @@
   <link rel="stylesheet" theme href="./assets/css/light.css">
   <link rel="stylesheet" theme href="./assets/css/dark.css">
   <link rel="stylesheet" theme href="./assets/css/spook.css">
-  <script defer src="/assets/fontawesome/js/all.min.js"></script>
+  <script defer src="./assets/fontawesome/js/all.min.js"></script>
 </head>
 
 <body>
@@ -21,7 +21,7 @@
     <h1>Scrum Helper: It Probably Works™</h1>
     <h2 id="egg">A Daily Choose Your Own Adventure!</h2>
     <div id="shortcuts">
-      <p id="quirks"><em><strong>Known Quirks:</strong> In Firefox if you Ctrl+Enter while focused on capacity it won't copy to clipboard.</em></p>
+      <p id="quirks"><em><strong>Current Issues: </strong><a href="https://gisthub.com/GlennHS/Scrum-Helper/projects/1">Please see issues tracker for all known issues and their most recent status</a></em></p>
       <table>
         <tr>
           <td><strong>Ctrl+#</strong></td>
@@ -67,7 +67,7 @@
     </div>
     <div id="output"></div>
     <div id="pre-task-details">
-      <label for="username">Your Name:</label>
+      <label for="username">Your Name: </label>
       <input type="text" name="username" placeholder="Dan Brown">
     </div>
     <div id="task-holder"></div>
@@ -157,7 +157,9 @@
         } else {
           $('input[name="exact-capacity"]').val("0")
         }
-        tasks = storedJSON.tasklist
+        if(tasks.length === 0) {
+          tasks = storedJSON.tasklist
+        }
         currentTaskNum = Math.max(...(tasks.map(t=>t.id)))
         updateDOMFromTasks()
         $("#todoWidget textarea").val(storedJSON.todo)
@@ -180,7 +182,7 @@
         id: currentTaskNum,
         name: "",
         status: "",
-        hours: 4,
+        hours: 0,
         blocked: "No"
       }
     }
@@ -205,6 +207,7 @@
     }
 
     const addTaskToDOM = (task) => {
+      // debugger;
       const taskElem = createElementFromHTML(`
       <div taskid="${task.id}" id="task-${task.id}" class="task">
         <div class="priority priority-top" onclick="moveTaskTopPriority(${task.id})"><i class="fas fa-level-up-alt"></i></div>
@@ -220,12 +223,14 @@
           <option value="Yes">Yes</option>
         </select>
         <label for="hours">Expected Hours:</label>
-        <input type="number" name="hours" value="${task.hours}">
+        <input type="number" name="hours">
         <label for="status">Status Update:</label>
         <input type="text" name="status" placeholder="Status Update" value="${task.status}">
         <input type="button" name="delete" value="Delete Task" onclick="deleteTask(${task.id})">
       </div>
       `)
+      $(taskElem).find(`select[name='blocked'] option[value='${task.blocked}']`).attr("selected", "")
+      $(taskElem).find(`input[name='hours']`).attr("value", task.hours)
       $("#task-holder").append(taskElem)
       updateInputFocusoutListener()
       $(taskElem).find("input[name='taskname']").focus()
@@ -237,7 +242,6 @@
     }
 
     const deleteTaskFromDOM = (taskID) => {
-      console.log(`Tried to delete task with ID ${taskID}`);
       $("#task-holder .task").remove(`.task[taskid='${taskID}']`)
       updateTasksFromDOM()
     }
@@ -264,6 +268,7 @@
     }
 
     const updateDOMFromTasks = () => {
+      debugger;
       $('#task-holder').empty()
       tasks.forEach( t => addTaskToDOM(t))
     }
@@ -325,7 +330,7 @@
         if(!(task.blocked === "No")) { numBlocked++; }
 
         msg +=
-          `<strong>Task: ${task.name}</strong><br />Status: ${task.status}<br />Expected Hours Today: ${task.hours}<br /><i>Blocked: ${task.blocked}</i><br /><br />`
+          `<strong>Task: ${task.name}</strong><br />Status: ${task.status}<br />${task.hours != 0 && task.hours != "" ? `Expected Hours Today: ${task.hours}<br />` : ""}<i>Blocked: ${task.blocked}</i><br /><br />`
       })
       msg += `Number of Tasks Blocked: ${numBlocked}<br />`
       msg += `<u><b>Available Capacity: ${$("#capacity").val()}</b></u>`;
@@ -454,12 +459,16 @@
           chosenTheme = storedJSON.theme ? "light" : "dark"
         }
         storedJSON.tasklist.forEach(t => {
-          tasks.push({
-            "id": currentTaskNum,
-            "name": t.name,
-            "status": t.status,
-            "blocked": t.blocked
-          })
+          if(typeof t !== "null" && typeof t.hours === "undefined") {
+            tasks.push({
+              "id": currentTaskNum,
+              "name": t.name,
+              "status": t.status,
+              "blocked": t.blocked,
+              "hours": 0
+            })
+            currentTaskNum++
+          }
         })
       } catch {}
     }

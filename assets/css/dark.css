@@ -1,6 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Andada+Pro:ital,wght@0,400;0,700;1,400;1,700&family=Hind+Siliguri:wght@400;700&display=swap");
 body {
-  background: #3a3a3a;
+  background: #1a1a1a;
   color: #eee;
   font: 16px/24px "Hind Siliguri";
 }
@@ -11,7 +11,7 @@ body ::placeholder {
 
 main {
   padding: 30px 10%;
-  background: #5b5b5b;
+  background: #3b3b3b;
   min-height: calc(100vh - 80px);
   height: auto;
 }
@@ -45,6 +45,15 @@ input[name=delete] {
 
 button, input[type=button] {
   cursor: pointer;
+}
+
+a {
+  color: #ec4d91;
+  text-decoration: underline;
+}
+
+a:visited {
+  color: #c61561;
 }
 
 select {
@@ -82,12 +91,12 @@ select:focus {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #5b5b5b;
+  background-color: #3b3b3b;
   width: 60%;
   height: 60%;
-  margin: 20%;
-  top: 0%;
-  left: 0%;
+  top: 20%;
+  left: 20%;
+  padding: 20px;
 }
 .widget textarea {
   width: 80%;
@@ -111,7 +120,7 @@ select:focus {
 }
 
 #shortcuts {
-  background: #777;
+  background: #5a5a5a;
   margin-bottom: 20px;
   padding: 30px;
   border: #e72176 solid 1px;
@@ -178,7 +187,7 @@ select:focus {
 }
 
 #task-holder .task {
-  background: #777;
+  background: #5a5a5a;
   border: #e72176 solid 2px;
   padding: 5px;
   display: grid;
@@ -193,16 +202,17 @@ select:focus {
 }
 #task-holder .task .priority {
   padding: 3px;
-  background: #8b8b8b;
+  background: #737373;
   text-align: center;
   font-size: 24px;
   color: #ec4d91;
+  transition: 0.5s ease;
 }
 #task-holder .task .priority:hover {
   transition: 0.5s ease;
   padding-left: 30%;
-  background: #4d4d4d;
-  color: #f390bb;
+  background: #3b3b3b;
+  color: #f5a6c8;
   border-left: solid 10px #e72176;
   cursor: pointer;
 }
@@ -232,8 +242,6 @@ select:focus {
 }
 #task-holder .task select[name=blocked] {
   grid-area: bs;
-  width: 40%;
-  margin: 0 30%;
   text-align: center;
 }
 #task-holder .task input[name=taskname] {
@@ -255,7 +263,7 @@ select:focus {
 }
 
 #main-controls {
-  background: #777;
+  background: #5a5a5a;
   border: #e72176 solid 2px;
   width: 100%;
   padding: 15px;

@@ -50,6 +50,15 @@ button, input[type="button"] {
   cursor: pointer;
 }
 
+a {
+  color: $font-emphasis-color;
+  text-decoration: underline;
+}
+
+a:visited {
+  color: color.scale($font-emphasis-color, $lightness : -30%);
+}
+
 // Capacity Select
 select {
   font-size: 18px;
@@ -91,9 +100,9 @@ select {
   background-color: $main-container-bg;
   width: 60%;
   height: 60%;
-  margin: 20%;
-  top: 0%;
-  left: 0%;
+  top: 20%;
+  left: 20%;
+  padding: 20px;
 
   textarea {
     width: 80%;
@@ -212,7 +221,8 @@ select {
     background: color.scale($task-bg, $lightness: 15%);
     text-align: center;
     font-size: 24px;
-    color: color.scale($font-emphasis-color, $lightness: 20%);
+    color: $font-emphasis-color;
+    transition: 0.5s ease;
   }
 
   .priority:hover {
@@ -258,8 +268,6 @@ select {
 
   select[name="blocked"] {
     grid-area: bs;
-    width: 40%;
-    margin: 0 30%;
     text-align: center;
   }
 

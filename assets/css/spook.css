@@ -1,6 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Creepster&family=Griffy&display=swap");
 body {
-  background: #e3a352;
+  background: #5cfd3d;
   color: #000;
   font: 16px/18px "Creepster";
 }
@@ -47,6 +47,15 @@ button, input[type=button] {
   cursor: pointer;
 }
 
+a {
+  color: #147601;
+  text-decoration: underline;
+}
+
+a:visited {
+  color: #0e5301;
+}
+
 select {
   font-size: 18px;
   color: black;
@@ -85,9 +94,9 @@ select:focus {
   background-color: #ffbd80;
   width: 60%;
   height: 60%;
-  margin: 20%;
-  top: 0%;
-  left: 0%;
+  top: 20%;
+  left: 20%;
+  padding: 20px;
 }
 .widget textarea {
   width: 80%;
@@ -196,13 +205,14 @@ select:focus {
   background: #ffb067;
   text-align: center;
   font-size: 24px;
-  color: #a1661a;
+  color: #147601;
+  transition: 0.5s ease;
 }
 #task-holder .task .priority:hover {
   transition: 0.5s ease;
   padding-left: 30%;
   background: #d76800;
-  color: #e3a352;
+  color: #5cfd3d;
   border-left: solid 10px #ff7b00;
   cursor: pointer;
 }
@@ -232,8 +242,6 @@ select:focus {
 }
 #task-holder .task select[name=blocked] {
   grid-area: bs;
-  width: 40%;
-  margin: 0 30%;
   text-align: center;
 }
 #task-holder .task input[name=taskname] {
@@ -318,6 +326,9 @@ select:focus {
   #task-holder form {
     border-bottom: #000 solid 1px;
   }
+}
+body {
+  letter-spacing: 2px;
 }
 
 /*# sourceMappingURL=spook.css.map */
