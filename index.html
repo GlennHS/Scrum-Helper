@@ -48,7 +48,22 @@
           <td>Generate message and copy it to clipboard</td>
         </tr>
       </table>
-      <button onclick="toggleTheme()">Change Theme</button>
+      <div id="top-buttons">
+        <button onclick="toggleHighsLowsWidget()">Highs+Lows Tracker</button>
+        <button onclick="toggleTheme()">Change Theme</button>
+        <button onclick="toggleTodoWidget()">Show Todo List</button>
+      </div>
+    </div>
+    <div id="screen-dimmer" class="hidden"></div>
+    <div id="highsLowsWidget" class="widget hidden">
+      <h3>Highs + Lows</h3>
+      <textarea></textarea>
+      <button onclick="toggleHighsLowsWidget()">Close</button>
+    </div>
+    <div id="todoWidget" class="widget hidden">
+      <h3>TODO</h3>
+      <textarea></textarea>
+      <button onclick="toggleTodoWidget()">Close</button>
     </div>
     <div id="output"></div>
     <div id="pre-task-details">
@@ -117,13 +132,18 @@
           "exactCapacity": "",
           "subreddits": [],
           "theme": "pastel",
-          "username": ""
+          "username": "",
+          "todo": "",
+          "highsLows": ""
         }
         storageJSON.tasklist = tasks
         storageJSON.capacity = $("#capacity").val()
         storageJSON.exactCapacity = $('input[name="exact-capacity"]').val()
         storageJSON.username = $('input[name="username"]').val()
         storageJSON.theme = chosenTheme
+        storageJSON.todo = $("#todoWidget textarea").val()
+        storageJSON.highsLows = $("#highsLowsWidget textarea").val()
+
         localStorage.setItem("tasklistV2", JSON.stringify(storageJSON))
       } catch(e) { console.log(e); }
     }
@@ -140,6 +160,8 @@
         tasks = storedJSON.tasklist
         currentTaskNum = Math.max(...(tasks.map(t=>t.id)))
         updateDOMFromTasks()
+        $("#todoWidget textarea").val(storedJSON.todo)
+        $("#highsLowsWidget textarea").val(storedJSON.highsLows)
         $("#capacity").val(storedJSON.capacity)
         capacityPrettify()
         if(storedJSON.username != undefined) {
@@ -340,6 +362,20 @@
         setTimeout(copyDivToClipboard, 500)
       },
     };
+
+    // #region Top Button Widgets
+    const toggleScreenDimmer = () => $("#screen-dimmer").toggleClass("hidden")
+
+    const toggleHighsLowsWidget = () => {
+      toggleScreenDimmer();
+      $("#highsLowsWidget").toggleClass("hidden")
+    }
+
+    const toggleTodoWidget = () => {
+      toggleScreenDimmer();
+      $("#todoWidget").toggleClass("hidden")
+    }
+    // #endregion
 
     // #region Event Listeners
     const updateInputFocusoutListener = () => {

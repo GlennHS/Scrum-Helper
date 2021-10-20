@@ -28,7 +28,7 @@ h3 {
   font: 28px/32px "Andada Pro";
 }
 
-h1, h2, h3 #quirks {
+h1, h2, h3, #quirks {
   text-align: center;
   margin: 5px 0;
 }
@@ -72,6 +72,44 @@ select:focus {
   border: blue solid 2px;
 }
 
+.hidden {
+  display: none !important;
+}
+
+.widget {
+  z-index: 999;
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #fad3e4;
+  width: 60%;
+  height: 60%;
+  margin: 20%;
+  top: 0%;
+  left: 0%;
+}
+.widget textarea {
+  width: 80%;
+  height: 50%;
+  margin: 10%;
+}
+.widget button {
+  text-align: center;
+  width: 40%;
+  font-weight: bold;
+}
+
+#screen-dimmer {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  z-index: 990;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
 #shortcuts {
   background: #ee649f;
   margin-bottom: 20px;
@@ -108,6 +146,11 @@ select:focus {
   align-items: center;
   justify-content: center;
   padding-bottom: 20px;
+}
+#pre-task-details #top-buttons {
+  display: flex;
+  column-gap: 40px;
+  width: 60%;
 }
 
 #cute-container {
@@ -224,7 +267,7 @@ select:focus {
 #main-controls label[for=capacity] {
   grid-area: cl;
 }
-#main-controls label[for=capacity-exact] {
+#main-controls label[for=exact-capacity] {
   grid-area: el;
   width: 100%;
   font-size: 14px;
@@ -238,7 +281,7 @@ select:focus {
 #main-controls input[name=generateMsg] {
   grid-area: gm;
 }
-#main-controls input[name=capacity-exact] {
+#main-controls input[name=exact-capacity] {
   grid-area: et;
 }
 
