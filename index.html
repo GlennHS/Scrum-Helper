@@ -13,7 +13,7 @@
   <link rel="stylesheet" theme href="./assets/css/light.css">
   <link rel="stylesheet" theme href="./assets/css/dark.css">
   <link rel="stylesheet" theme href="./assets/css/spook.css">
-  <script defer src="/assets/fontawesome/js/all.min.js"></script>
+  <script defer src="./assets/fontawesome/js/all.min.js"></script>
 </head>
 
 <body>
@@ -237,7 +237,6 @@
     }
 
     const deleteTaskFromDOM = (taskID) => {
-      console.log(`Tried to delete task with ID ${taskID}`);
       $("#task-holder .task").remove(`.task[taskid='${taskID}']`)
       updateTasksFromDOM()
     }
