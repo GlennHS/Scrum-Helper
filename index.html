@@ -152,7 +152,7 @@
       try {
         let storedJSON = JSON.parse(localStorage.getItem("tasklistV2"))
         let capacityVal = storedJSON.capacity
-        if(nullCheck(storedJSON.exactCapacity) != "") {
+        if(nullCheck(storedJSON.exactCapacity) != "" && storedJSON.exactCapacity != "0") {
           $('input[name="exact-capacity"]').val(storedJSON.exactCapacity)
         } else {
           $('input[name="exact-capacity"]').val("0")
@@ -335,7 +335,7 @@
 
       if(capacity == "Light") { msg += "✋" }
       else if(capacity == "Full") { msg += "💯" }
-      if(exactCapacity && exactCapacity !== 0) { msg += "<br />Exact utilisation: " + $("input[name='exact-capacity']").val()}
+      if(exactCapacity && exactCapacity != "0") { msg += "<br />Exact utilisation: " + $("input[name='exact-capacity']").val()}
       if($("#capacity").val() == "Overloaded") {
         msg = `⚠⚠⚠⚠⚠<br />${msg}<br />⚠⚠⚠⚠⚠`;
       }
