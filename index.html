@@ -207,7 +207,6 @@
     }
 
     const addTaskToDOM = (task) => {
-      // debugger;
       const taskElem = createElementFromHTML(`
       <div taskid="${task.id}" id="task-${task.id}" class="task">
         <div class="priority priority-top" onclick="moveTaskTopPriority(${task.id})"><i class="fas fa-level-up-alt"></i></div>
@@ -268,7 +267,6 @@
     }
 
     const updateDOMFromTasks = () => {
-      debugger;
       $('#task-holder').empty()
       tasks.forEach( t => addTaskToDOM(t))
     }
@@ -458,18 +456,22 @@
         if(typeof storedJSON.theme == "boolean") {
           chosenTheme = storedJSON.theme ? "light" : "dark"
         }
-        storedJSON.tasklist.forEach(t => {
-          if(typeof t !== "null" && typeof t.hours === "undefined") {
-            tasks.push({
-              "id": currentTaskNum,
-              "name": t.name,
-              "status": t.status,
-              "blocked": t.blocked,
-              "hours": 0
-            })
-            currentTaskNum++
-          }
-        })
+        if (storedJSON.tasklist.includes(null)) {
+          tasks.push(generateNewTask())
+        } else {
+          storedJSON.tasklist.forEach(t => {
+            if(typeof t.hours === "undefined") {
+              tasks.push({
+                "id": currentTaskNum,
+                "name": t.name,
+                "status": t.status,
+                "blocked": t.blocked,
+                "hours": 0
+              })
+              currentTaskNum++
+            }
+          })
+        }
       } catch {}
     }
 
