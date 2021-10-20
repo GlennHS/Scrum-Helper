@@ -67,6 +67,8 @@
         <option value="Overloaded">!Overloaded! - Can't meet current deadlines with unblocked work, off-track // &gt;100%
           Full </option>
       </select>
+      <label for="exact-capacity">Utilisation % (optional): </label>
+      <input name="exact-capacity" type="number" value="0">
       <input type="button" value="Add Task" name="addTask">
       <input type="button" value="Generate Message" name="generateMsg">
     </form>
@@ -112,12 +114,14 @@
         let storageJSON = {
           "tasklist": [],
           "capacity": "Low",
+          "exactCapacity": "",
           "subreddits": [],
           "theme": "pastel",
           "username": ""
         }
         storageJSON.tasklist = tasks
         storageJSON.capacity = $("#capacity").val()
+        storageJSON.exactCapacity = $('input[name="exact-capacity"]').val()
         storageJSON.username = $('input[name="username"]').val()
         storageJSON.theme = chosenTheme
         localStorage.setItem("tasklistV2", JSON.stringify(storageJSON))
@@ -128,6 +132,11 @@
       try {
         let storedJSON = JSON.parse(localStorage.getItem("tasklistV2"))
         let capacityVal = storedJSON.capacity
+        if(nullCheck(storedJSON.exactCapacity) != "") {
+          $('input[name="exact-capacity"]').val(storedJSON.exactCapacity)
+        } else {
+          $('input[name="exact-capacity"]').val("0")
+        }
         tasks = storedJSON.tasklist
         currentTaskNum = Math.max(...(tasks.map(t=>t.id)))
         updateDOMFromTasks()
@@ -282,6 +291,8 @@
         numBlocked = 0,
         msg = "",
         name = $('input[name="username"]').val().trim();
+        capacity = $("#capacity").val(),
+        exactCapacity = $('input[name="exact-capacity"]').val() || 0
 
         // Future me, ko-KR means YYYY/MM/DD, not that someone's pranking you by messing with your datestamp
       if(name !== "") {
@@ -297,9 +308,10 @@
       msg += `Number of Tasks Blocked: ${numBlocked}<br />`
       msg += `<u><b>Available Capacity: ${$("#capacity").val()}</b></u>`;
 
-      if($("#capacity").val() == "Light") { msg += "✋" }
-      else if($("#capacity").val() == "Full") { msg += "💯" }
-      else if($("#capacity").val() == "Overloaded") {
+      if(capacity == "Light") { msg += "✋" }
+      else if(capacity == "Full") { msg += "💯" }
+      if(exactCapacity && exactCapacity !== 0) { msg += "<br />Exact utilisation: " + $("input[name='exact-capacity']").val()}
+      if($("#capacity").val() == "Overloaded") {
         msg = `⚠⚠⚠⚠⚠<br />${msg}<br />⚠⚠⚠⚠⚠`;
       }
 

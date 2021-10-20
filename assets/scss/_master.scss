@@ -245,13 +245,19 @@ select {
   width: 100%;
   padding: 15px;
   display: grid;
-  grid-template-areas: "cl cs cs cs cs at gm";
+  grid-template-areas: "cl cs cs cs cs cs cs cs cs cs el et at gm";
   column-gap: 15px;
   align-items: center;
 
 
   label[for="capacity"] {
     grid-area: cl;
+  }
+
+  label[for="capacity-exact"] {
+    grid-area: el;
+    width: 100%;
+    font-size: 14px;
   }
 
   select {
@@ -264,6 +270,10 @@ select {
 
   input[name="generateMsg"] {
     grid-area: gm;
+  }
+
+  input[name="capacity-exact"] {
+    grid-area: et
   }
 }
 

@@ -217,12 +217,17 @@ select:focus {
   width: 100%;
   padding: 15px;
   display: grid;
-  grid-template-areas: "cl cs cs cs cs at gm";
+  grid-template-areas: "cl cs cs cs cs cs cs cs cs cs el et at gm";
   column-gap: 15px;
   align-items: center;
 }
 #main-controls label[for=capacity] {
   grid-area: cl;
+}
+#main-controls label[for=capacity-exact] {
+  grid-area: el;
+  width: 100%;
+  font-size: 14px;
 }
 #main-controls select {
   grid-area: cs;
@@ -232,6 +237,9 @@ select:focus {
 }
 #main-controls input[name=generateMsg] {
   grid-area: gm;
+}
+#main-controls input[name=capacity-exact] {
+  grid-area: et;
 }
 
 #fallback {
