@@ -149,9 +149,9 @@ select {
   display: grid;
   grid-template: repeat(4, 1fr) / repeat(12, 1fr);
   grid-template-areas: 
-    "pt tl tl tt tt tt tt tt tt bl bl bl"
-    "pu tl tl tt tt tt tt tt tt bs bs bs"
-    "pd sl sl st st st st st st bs bs bs"
+    "pt tl tl tt tt tt tt tt tt bl bs bs"
+    "pu tl tl tt tt tt tt tt tt hl hl ht"
+    "pd sl sl st st st st st st hl hl ht"
     "pb sl sl st st st st st st db db db";
   align-items: center;
 
@@ -190,7 +190,7 @@ select {
     grid-area: pd;
   }
 
-  .priority-botoom {
+  .priority-bottom {
     grid-area: pb;
   }
 
@@ -204,6 +204,10 @@ select {
 
   label[for="blocked"] {
     grid-area: bl;
+  }
+
+  label[for="hours"] {
+    grid-area: hl;
   }
 
   select[name="blocked"] {
@@ -221,6 +225,12 @@ select {
     grid-area: st;
   }
 
+  input[name="hours"] {
+    grid-area: ht;
+    width: 80%;
+    justify-self: center;
+  }
+
   input[name="delete"] {
     grid-area: db;
     width: 60%;
@@ -235,19 +245,25 @@ select {
   width: 100%;
   padding: 15px;
   display: grid;
-  grid-template: 100% / 10% 60% 15% 15%;
-  justify-items: center;
+  grid-template-areas: "cl cs cs cs cs at gm";
+  column-gap: 15px;
   align-items: center;
 
 
-  label {
-    text-align: right;
-    padding-right: 5px;
+  label[for="capacity"] {
+    grid-area: cl;
   }
 
-  input[type="button"] {
-    justify-self: stretch;
-    margin: 0 20px;
+  select {
+    grid-area: cs;
+  }
+
+  input[name="addTask"] {
+    grid-area: at;
+  }
+
+  input[name="generateMsg"] {
+    grid-area: gm;
   }
 }
 

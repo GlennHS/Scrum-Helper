@@ -140,7 +140,7 @@ select:focus {
   padding: 5px;
   display: grid;
   grid-template: repeat(4, 1fr)/repeat(12, 1fr);
-  grid-template-areas: "pt tl tl tt tt tt tt tt tt bl bl bl" "pu tl tl tt tt tt tt tt tt bs bs bs" "pd sl sl st st st st st st bs bs bs" "pb sl sl st st st st st st db db db";
+  grid-template-areas: "pt tl tl tt tt tt tt tt tt bl bs bs" "pu tl tl tt tt tt tt tt tt hl hl ht" "pd sl sl st st st st st st hl hl ht" "pb sl sl st st st st st st db db db";
   align-items: center;
 }
 #task-holder .task label {
@@ -172,7 +172,7 @@ select:focus {
 #task-holder .task .priority-down {
   grid-area: pd;
 }
-#task-holder .task .priority-botoom {
+#task-holder .task .priority-bottom {
   grid-area: pb;
 }
 #task-holder .task label[for=taskname] {
@@ -183,6 +183,9 @@ select:focus {
 }
 #task-holder .task label[for=blocked] {
   grid-area: bl;
+}
+#task-holder .task label[for=hours] {
+  grid-area: hl;
 }
 #task-holder .task select[name=blocked] {
   grid-area: bs;
@@ -195,6 +198,11 @@ select:focus {
 }
 #task-holder .task input[name=status] {
   grid-area: st;
+}
+#task-holder .task input[name=hours] {
+  grid-area: ht;
+  width: 80%;
+  justify-self: center;
 }
 #task-holder .task input[name=delete] {
   grid-area: db;
@@ -209,17 +217,21 @@ select:focus {
   width: 100%;
   padding: 15px;
   display: grid;
-  grid-template: 100%/10% 60% 15% 15%;
-  justify-items: center;
+  grid-template-areas: "cl cs cs cs cs at gm";
+  column-gap: 15px;
   align-items: center;
 }
-#main-controls label {
-  text-align: right;
-  padding-right: 5px;
+#main-controls label[for=capacity] {
+  grid-area: cl;
 }
-#main-controls input[type=button] {
-  justify-self: stretch;
-  margin: 0 20px;
+#main-controls select {
+  grid-area: cs;
+}
+#main-controls input[name=addTask] {
+  grid-area: at;
+}
+#main-controls input[name=generateMsg] {
+  grid-area: gm;
 }
 
 #fallback {

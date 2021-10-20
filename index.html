@@ -55,25 +55,7 @@
       <label for="username">Your Name:</label>
       <input type="text" name="username" placeholder="Dan Brown">
     </div>
-    <div id="task-holder">
-      <!-- <div taskid="0" id="task-0" class="task">
-        <div class="priority priority-top"><i class="fas fa-level-up-alt"></i></div>
-        <div class="priority priority-up"><i class="fas fa-long-arrow-alt-up"></i></div>
-        <div class="priority priority-down"><i class="fas fa-long-arrow-alt-down"></i></div>
-        <div class="priority priority-bottom"><i class="fas fa-level-down-alt"></i></div>
-        <label for="taskname">Clarizen Task:</label>
-        <input type="text" autofocus name="taskname" placeholder="Clarizen Task Name">
-        <label for="blocked">Blocked?</label>
-        <select name="blocked">
-          <option value="No">No</option>
-          <option value="Partial">Partial</option>
-          <option value="Yes">Yes</option>
-        </select>
-        <label for="status">Status Update:</label>
-        <input type="text" name="status" placeholder="Status Update">
-        <input type="button" name="delete" value="Delete Task" onclick="deleteTask(0)">
-      </div> -->
-    </div>
+    <div id="task-holder"></div>
     <br />
     <form id="main-controls">
       <label for="capacity">Capacity:</label>
@@ -144,7 +126,7 @@
 
     const getStorage = () => {
       try {
-        let storedJSON = JSON.parse(localStorage.getItem("tasklistV2")) || "John Doe"
+        let storedJSON = JSON.parse(localStorage.getItem("tasklistV2"))
         let capacityVal = storedJSON.capacity
         tasks = storedJSON.tasklist
         currentTaskNum = Math.max(...(tasks.map(t=>t.id)))
@@ -167,6 +149,7 @@
         id: currentTaskNum,
         name: "",
         status: "",
+        hours: 4,
         blocked: "No"
       }
     }
@@ -205,6 +188,8 @@
           <option value="Partial">Partial</option>
           <option value="Yes">Yes</option>
         </select>
+        <label for="hours">Expected Hours:</label>
+        <input type="number" name="hours" value="${task.hours}">
         <label for="status">Status Update:</label>
         <input type="text" name="status" placeholder="Status Update" value="${task.status}">
         <input type="button" name="delete" value="Delete Task" onclick="deleteTask(${task.id})">
@@ -241,6 +226,7 @@
           id: $taskElem.attr("taskid"),
           name: $taskElem.find("input[name='taskname']").val(),
           status: $taskElem.find("input[name='status']").val(),
+          hours: $taskElem.find("input[name='hours']").val(),
           blocked: $taskElem.find("select[name='blocked']").val()
         })
       })
@@ -297,7 +283,8 @@
         msg = "",
         name = $('input[name="username"]').val().trim();
 
-      if(name !== "" && name !== "John Doe") {
+        // Future me, ko-KR means YYYY/MM/DD, not that someone's pranking you by messing with your datestamp
+      if(name !== "") {
         msg += `<strong>${name}</strong><br/><strong>${(new Date()).toLocaleDateString('ko-KR')}</strong><br/><br/>`
       }
 
@@ -305,7 +292,7 @@
         if(!(task.blocked === "No")) { numBlocked++; }
 
         msg +=
-          `<strong>Task: ${task.name}</strong>${"<br />"}Status: ${task.status}<br /><i>Blocked: ${task.blocked}</i><br /><br />`
+          `<strong>Task: ${task.name}</strong><br />Status: ${task.status}<br />Expected Hours Today: ${task.hours}<br /><i>Blocked: ${task.blocked}</i><br /><br />`
       })
       msg += `Number of Tasks Blocked: ${numBlocked}<br />`
       msg += `<u><b>Available Capacity: ${$("#capacity").val()}</b></u>`;
@@ -414,7 +401,7 @@
 
     const legacyTasklistHandling = () => {
       try {
-        let storedJSON = JSON.parse(localStorage.getItem("tasklistV2")) || "John Doe"
+        let storedJSON = JSON.parse(localStorage.getItem("tasklistV2"))
         if(typeof storedJSON.theme == "boolean") {
           chosenTheme = storedJSON.theme ? "light" : "dark"
         }
