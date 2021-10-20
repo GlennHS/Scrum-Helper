@@ -213,6 +213,7 @@ select {
     text-align: center;
     font-size: 24px;
     color: color.scale($font-emphasis-color, $lightness: 20%);
+    transition: 0.5s ease;
   }
 
   .priority:hover {
@@ -258,8 +259,6 @@ select {
 
   select[name="blocked"] {
     grid-area: bs;
-    width: 40%;
-    margin: 0 30%;
     text-align: center;
   }
 
