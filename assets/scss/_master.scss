@@ -50,6 +50,15 @@ button, input[type="button"] {
   cursor: pointer;
 }
 
+a {
+  color: $font-emphasis-color;
+  text-decoration: underline;
+}
+
+a:visited {
+  color: color.scale($font-emphasis-color, $lightness : -30%);
+}
+
 // Capacity Select
 select {
   font-size: 18px;
@@ -212,7 +221,7 @@ select {
     background: color.scale($task-bg, $lightness: 15%);
     text-align: center;
     font-size: 24px;
-    color: color.scale($font-emphasis-color, $lightness: 20%);
+    color: $font-emphasis-color;
     transition: 0.5s ease;
   }
 

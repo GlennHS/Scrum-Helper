@@ -21,7 +21,7 @@
     <h1>Scrum Helper: It Probably Works™</h1>
     <h2 id="egg">A Daily Choose Your Own Adventure!</h2>
     <div id="shortcuts">
-      <p id="quirks"><em><strong>Known Quirks:</strong> In Firefox if you Ctrl+Enter while focused on capacity it won't copy to clipboard.</em></p>
+      <p id="quirks"><em><strong>Current Issues: </strong><a href="https://gisthub.com/GlennHS/Scrum-Helper/projects/1">Please see issues tracker for all known issues and their most recent status</a></em></p>
       <table>
         <tr>
           <td><strong>Ctrl+#</strong></td>
@@ -157,7 +157,9 @@
         } else {
           $('input[name="exact-capacity"]').val("0")
         }
-        tasks = storedJSON.tasklist
+        if(tasks.length === 0) {
+          tasks = storedJSON.tasklist
+        }
         currentTaskNum = Math.max(...(tasks.map(t=>t.id)))
         updateDOMFromTasks()
         $("#todoWidget textarea").val(storedJSON.todo)
@@ -180,7 +182,7 @@
         id: currentTaskNum,
         name: "",
         status: "",
-        hours: 4,
+        hours: 0,
         blocked: "No"
       }
     }
@@ -226,6 +228,7 @@
         <input type="button" name="delete" value="Delete Task" onclick="deleteTask(${task.id})">
       </div>
       `)
+      $(taskElem).find(`select[name='blocked'] option[value='${task.blocked}']`).attr("selected", "")
       $("#task-holder").append(taskElem)
       updateInputFocusoutListener()
       $(taskElem).find("input[name='taskname']").focus()
@@ -324,7 +327,7 @@
         if(!(task.blocked === "No")) { numBlocked++; }
 
         msg +=
-          `<strong>Task: ${task.name}</strong><br />Status: ${task.status}<br />Expected Hours Today: ${task.hours}<br /><i>Blocked: ${task.blocked}</i><br /><br />`
+          `<strong>Task: ${task.name}</strong><br />Status: ${task.status}<br />${task.hours != 0 && task.hours != "" ? `Expected Hours Today: ${task.hours}<br />` : ""}<i>Blocked: ${task.blocked}</i><br /><br />`
       })
       msg += `Number of Tasks Blocked: ${numBlocked}<br />`
       msg += `<u><b>Available Capacity: ${$("#capacity").val()}</b></u>`;
@@ -453,13 +456,16 @@
           chosenTheme = storedJSON.theme ? "light" : "dark"
         }
         storedJSON.tasklist.forEach(t => {
-          tasks.push({
-            "id": currentTaskNum,
-            "name": t.name,
-            "status": t.status,
-            "blocked": t.blocked,
-            "hours": 0
-          })
+          if(typeof(t) !== "null") {
+            tasks.push({
+              "id": currentTaskNum,
+              "name": t.name,
+              "status": t.status,
+              "blocked": t.blocked,
+              "hours": 0
+            })
+            currentTaskNum++
+          }
         })
       } catch {}
     }
