@@ -1,9 +1,6 @@
 @use 'sass:color';
 
-@font-face {
-  font-family: "OpenDyslexic";
-  src: url("../OpenDyslexic2 OTF/OpenDyslexic-Regular.otf");
-}
+@import 'openDsylexicFonts';
 
 // $font-color: #000;
 
@@ -15,10 +12,3 @@ $border-color: #fff;
 $body-font-color: #fff;
 $section-font-color: #fff;
 $font-emphasis-color: #f3f;
-
-// Do NOT Change Font Sizes
-$font-h1: bolder 48px / 52px 'OpenDyslexic';
-$font-h2: bold 28px / 48px 'OpenDyslexic';
-$font-h3: 28px / 32px 'OpenDyslexic';
-$body-font: 16px / 18px 'OpenDyslexic';
-$body-font-emph: italic 16px / 18px 'OpenDyslexic';
