@@ -245,7 +245,7 @@
         <input type="button" name="delete" value="Delete Task" onclick="deleteTask(${task.id})">
       </div>
       `)
-      $(taskElem).find(`select[name='blocked'] option[value='${task.blocked}']`).attr("selected", "")
+      $(taskElem).find(`select[name='blocked']`).val(task.blocked)
       $(taskElem).find(`input[name='hours']`).attr("value", task.hours)
       $("#task-holder").append(taskElem)
       updateInputFocusoutListener()
@@ -382,8 +382,7 @@
         else if(utilPercentage <= 100) { capacityName = "Full"}
         else { capacityName = "Overloaded"}
 
-        $("#capacity option").removeAttr("selected")
-        $(`#capacity option[value="${capacityName}"]`).attr("selected", "")
+        $(`#capacity`).val(capacityName)
       })
     }
 
