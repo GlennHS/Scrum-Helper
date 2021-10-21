@@ -1,0 +1,334 @@
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("../OpenDyslexic2 OTF/OpenDyslexic-Regular.otf");
+}
+body {
+  background: #000;
+  color: #fff;
+  font: 16px/18px "OpenDyslexic";
+}
+body ::placeholder {
+  font-size: 18px;
+  line-height: 20px;
+}
+
+main {
+  padding: 30px 10%;
+  background: #111;
+  min-height: calc(100vh - 80px);
+  height: auto;
+}
+
+h1 {
+  font: bolder 48px/52px "OpenDyslexic";
+}
+
+h2 {
+  font: bold 28px/48px "OpenDyslexic";
+}
+
+h3 {
+  font: 28px/32px "OpenDyslexic";
+}
+
+h1, h2, h3, #quirks {
+  text-align: center;
+  margin: 5px 0;
+}
+
+input {
+  border: #fff solid 2px;
+  border-radius: 5px;
+  height: 24px;
+}
+input[name=delete] {
+  background: #f44;
+  color: #fff;
+}
+
+button, input[type=button] {
+  cursor: pointer;
+}
+
+a {
+  color: #f3f;
+  text-decoration: underline;
+}
+
+a:visited {
+  color: #d600d6;
+}
+
+select {
+  font-size: 18px;
+  color: black;
+}
+select.Overloaded, select option[value=overloaded] {
+  background: #f00;
+  color: white;
+}
+select.Full, select option[value=full] {
+  background: #66d;
+  color: white;
+}
+select.Busy, select option[value=busy] {
+  background: #6d6;
+}
+select.Medium, select option[value=medium] {
+  background: #aaa;
+}
+select.Light, select option[value=light] {
+  background: #ddd;
+}
+select:focus {
+  border: blue solid 2px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.widget {
+  z-index: 999;
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #111;
+  width: 60%;
+  height: 60%;
+  top: 20%;
+  left: 20%;
+  padding: 20px;
+}
+.widget textarea {
+  width: 80%;
+  height: 50%;
+  margin: 10%;
+}
+.widget button {
+  text-align: center;
+  width: 40%;
+  font-weight: bold;
+}
+
+#screen-dimmer {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  z-index: 990;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+#shortcuts {
+  background: #222;
+  margin-bottom: 20px;
+  padding: 30px;
+  border: #fff solid 1px;
+  border-radius: 5px;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+}
+#shortcuts button {
+  font-size: 18px;
+  margin-top: 20px;
+}
+
+#shortcuts table {
+  width: 80%;
+}
+
+#shortcuts table td {
+  border-bottom: #000 solid 1px;
+  padding: 0 10px;
+  line-height: 27px;
+}
+
+#quirks {
+  width: auto;
+}
+
+#pre-task-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 20px;
+}
+#pre-task-details #top-buttons {
+  display: flex;
+  column-gap: 40px;
+  width: 60%;
+}
+
+#cute-container {
+  width: 100%;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+}
+#cute-container textarea {
+  width: 600px;
+}
+
+#cute {
+  max-width: 600px;
+  height: auto;
+  padding-bottom: 20px;
+}
+
+#output {
+  font-size: 14px !important;
+  width: 100%;
+  text-align: center;
+  padding-bottom: 20px;
+}
+
+#task-holder .task {
+  background: #222;
+  border: #fff solid 2px;
+  padding: 5px;
+  display: grid;
+  grid-template: repeat(4, 1fr)/repeat(12, 1fr);
+  grid-template-areas: "pt tl tl tt tt tt tt tt tt bl bs bs" "pu tl tl tt tt tt tt tt tt hl hl ht" "pd sl sl st st st st st st hl hl ht" "pb sl sl st st st st st st db db db";
+  align-items: center;
+}
+#task-holder .task label {
+  text-align: center;
+  padding: 0 20px;
+  align-self: center;
+}
+#task-holder .task .priority {
+  padding: 3px;
+  background: #434343;
+  text-align: center;
+  font-size: 24px;
+  color: #f3f;
+  transition: 0.5s ease;
+}
+#task-holder .task .priority:hover {
+  transition: 0.5s ease;
+  padding-left: 30%;
+  background: #161616;
+  color: #ff99ff;
+  border-left: solid 10px #fff;
+  cursor: pointer;
+}
+#task-holder .task .priority-top {
+  grid-area: pt;
+}
+#task-holder .task .priority-up {
+  grid-area: pu;
+}
+#task-holder .task .priority-down {
+  grid-area: pd;
+}
+#task-holder .task .priority-bottom {
+  grid-area: pb;
+}
+#task-holder .task label[for=taskname] {
+  grid-area: tl;
+}
+#task-holder .task label[for=status] {
+  grid-area: sl;
+}
+#task-holder .task label[for=blocked] {
+  grid-area: bl;
+}
+#task-holder .task label[for=hours] {
+  grid-area: hl;
+}
+#task-holder .task select[name=blocked] {
+  grid-area: bs;
+  text-align: center;
+}
+#task-holder .task input[name=taskname] {
+  grid-area: tt;
+}
+#task-holder .task input[name=status] {
+  grid-area: st;
+}
+#task-holder .task input[name=hours] {
+  grid-area: ht;
+  width: 80%;
+  justify-self: center;
+}
+#task-holder .task input[name=delete] {
+  grid-area: db;
+  width: 60%;
+  margin: 0 20%;
+  align-self: center;
+}
+
+#main-controls {
+  background: #222;
+  border: #fff solid 2px;
+  width: 100%;
+  padding: 15px;
+  display: grid;
+  grid-template-areas: "cl cs cs cs cs cs cs cs cs cs el et at gm";
+  column-gap: 15px;
+  align-items: center;
+}
+#main-controls label[for=capacity] {
+  grid-area: cl;
+}
+#main-controls label[for=exact-capacity] {
+  grid-area: el;
+  width: 100%;
+  font-size: 14px;
+}
+#main-controls select {
+  grid-area: cs;
+}
+#main-controls input[name=addTask] {
+  grid-area: at;
+}
+#main-controls input[name=generateMsg] {
+  grid-area: gm;
+}
+#main-controls input[name=exact-capacity] {
+  grid-area: et;
+}
+
+#fallback {
+  position: absolute;
+  left: -99999px;
+}
+
+@media screen and (max-width: 800px) {
+  main {
+    height: auto;
+  }
+
+  form {
+    flex-flow: column;
+    row-gap: 10px;
+    column-gap: 10px;
+    width: 100%;
+    padding: 10px 0;
+  }
+  form label {
+    text-align: center !important;
+    width: 100% !important;
+  }
+  form input[type=text] {
+    font-size: 1.2em;
+    line-height: 1.3em;
+    width: 95% !important;
+  }
+  form input[type=button] {
+    width: 95% !important;
+  }
+
+  #task-holder form {
+    border-bottom: #000 solid 1px;
+  }
+}
+
+/*# sourceMappingURL=accessibilityDark.css.map */
