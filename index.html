@@ -99,6 +99,7 @@
   <script async defer>
     let chosenTheme = "dark", tasks = [], currentTaskNum = 0;
 
+    // #region Utility Functions
     const copyDivToClipboard = () => {
       if (!navigator.userAgent.includes("Firefox")) {
         var range = document.createRange();
@@ -126,6 +127,23 @@
 
     const nullCheck = (v) => { return v ? v : "" }
 
+    const capacityPrettify = () => { $("#capacity")[0].classList = $("#capacity").val(); }
+
+    const changeFocus = (movinOnUp) => {
+      const $currDiv = $("input:focus").parent(".task");
+      if(movinOnUp) {
+        try {
+          $currDiv.prev(".task").find("input[name='taskname']").focus()
+        } catch {}
+      } else {
+        try {
+          $currDiv.next(".task").find("input[name='taskname']").focus()
+        } catch {}
+      }
+    }
+    // #endregion
+
+    // #region Storage Get/Set
     const setStorage = () => {
       try {
         let storageJSON = {
@@ -173,9 +191,9 @@
         setTheme();
       } catch(e) { console.log(e); }
     }
+    // #endregion
 
-    const capacityPrettify = () => { $("#capacity")[0].classList = $("#capacity").val(); }
-
+    // #region Task Functions
     const generateNewTask = () => {
       currentTaskNum++
       return {
@@ -187,23 +205,22 @@
       }
     }
 
-    const changeFocus = (movinOnUp) => {
-      const $currDiv = $("input:focus").parent(".task");
-      if(movinOnUp) {
-        try {
-          $currDiv.prev(".task").find("input[name='taskname']").focus()
-        } catch {}
-      } else {
-        try {
-          $currDiv.next(".task").find("input[name='taskname']").focus()
-        } catch {}
-      }
-    }
-
     const addTask = () => {
       const newTask = generateNewTask()
       tasks.push(newTask)
       addTaskToDOM(newTask)
+    }
+
+    const deleteTask = (taskID) => {
+      tasks = tasks.filter(t => t.id != taskID)
+      deleteTaskFromDOM(taskID)
+    }
+
+    const deleteTaskShortcut = () => {
+      const $focussedTaskElem = $("input:focus").parent(".task")
+      const taskID = $focussedTaskElem.attr("taskid")
+      $focussedTaskElem.prev().find("input[name='taskname']").focus()
+      deleteTask(taskID)
     }
 
     const addTaskToDOM = (task) => {
@@ -235,21 +252,9 @@
       $(taskElem).find("input[name='taskname']").focus()
     }
 
-    const deleteTask = (taskID) => {
-      tasks = tasks.filter(t => t.id != taskID)
-      deleteTaskFromDOM(taskID)
-    }
-
     const deleteTaskFromDOM = (taskID) => {
       $("#task-holder .task").remove(`.task[taskid='${taskID}']`)
       updateTasksFromDOM()
-    }
-
-    const deleteTaskShortcut = () => {
-      const $focussedTaskElem = $("input:focus").parent(".task")
-      const taskID = $focussedTaskElem.attr("taskid")
-      $focussedTaskElem.prev().find("input[name='taskname']").focus()
-      deleteTask(taskID)
     }
 
     const updateTasksFromDOM = () => {
@@ -271,6 +276,7 @@
       tasks.forEach( t => addTaskToDOM(t))
     }
 
+    // #region Task Priority Changers
     const moveTaskTopPriority = (taskID) => {
       // swap task with one above in tasks
       const indexOfTask = tasks.indexOf(tasks.find(t => t.id == taskID))
@@ -310,6 +316,142 @@
       tasks.push(temp)
       updateDOMFromTasks()
     }
+    // #endregion
+    // #endregion
+
+    // #region Top Button Widgets
+    const toggleScreenDimmer = () => $("#screen-dimmer").toggleClass("hidden")
+
+    const toggleHighsLowsWidget = () => {
+      toggleScreenDimmer();
+      $("#highsLowsWidget").toggleClass("hidden")
+    }
+
+    const toggleTodoWidget = () => {
+      toggleScreenDimmer();
+      $("#todoWidget").toggleClass("hidden")
+    }
+    // #endregion
+
+    // #region Event Listeners
+    const ctrlShortcuts = {
+      "Delete": deleteTaskShortcut,
+      "#": addTask,
+      "ArrowUp": () => changeFocus(true),
+      "ArrowDown": () => changeFocus(false),
+      "/": function() {
+        if($("#capacity")[0] === document.activeElement) {
+          $("#task-holder .task:last-child input[name='taskname']").focus()
+        } else {
+          $("#capacity").focus();
+        }
+      },
+      "Enter": function() {
+        generateMsg();
+        setTimeout(copyDivToClipboard, 500)
+      },
+    };
+
+    const updateInputFocusoutListener = () => {
+      $("input").on('focusout', updateTasksFromDOM)
+      $("select").on('focusout', updateTasksFromDOM)
+      $('input[name="hours"]').on('focusout', () => {
+        // get all hours elems' values
+        let totHours = 0
+        $('input[name="hours"]').each( (i, e) => {
+          const $e = $(e)
+          if($e.val()) {
+            totHours += parseFloat($e.val())
+          }
+        })
+        // Add them and divide by 0.075 to get util%
+        // If Friday then actually 0.07 (FML)
+        let utilPercentage = 0;
+        if((new Date()).getDay() === 5) {
+          utilPercentage = Math.round(totHours / 0.07)
+        } else {
+          utilPercentage = Math.round(totHours / 0.075)
+        }
+
+        $('input[name="exact-capacity"]').val(utilPercentage)
+
+        let capacityName;
+        if(utilPercentage <= 50) { capacityName = "Light"}
+        else if(utilPercentage <= 85) { capacityName = "Medium"}
+        else if(utilPercentage <= 95) { capacityName = "Busy"}
+        else if(utilPercentage <= 100) { capacityName = "Full"}
+        else { capacityName = "Overloaded"}
+
+        $("#capacity option").removeAttr("selected")
+        $(`#capacity option[value="${capacityName}"]`).attr("selected", "")
+      })
+    }
+
+    $("#capacity").change(capacityPrettify)
+
+    document.addEventListener('keydown', (e) => {
+      // If ctrl key is active, look up a function to run
+      // in ctrlShortcuts depending on the key pressed.
+      if (e.ctrlKey && ctrlShortcuts[e.key]) {
+        const functionToRun = ctrlShortcuts[e.key];
+        functionToRun();
+      }
+    });
+
+    $("input[name='addTask']").click(addTask)
+
+    $("input[name='generateMsg']").click(() => {
+      generateMsg();
+      document.getElementById("output").scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
+    })
+
+    $('h1').click( () => {
+      const vaguelyAmusing = [
+        "Now with 20% less sodium!",
+        "No animals were harmed in the making of this site!",
+        "It Probably Works™",
+        "Private Header: Do Not Read",
+        "Clinically proven to cure bad breath!",
+        "Now it only breaks SOME of the time!",
+        "ORBS ORBS ORBS ORBS",
+        "You're Our Millionth Customer!",
+        "Please click gently, it's delicate...",
+        "Now completely vegan!",
+        "Built with <3... mostly.",
+        "How do you keep an idiot in suspense?",
+        "'Firefox annoys me' edition.",
+        "Now proudly NOT supporting IE.",
+        "Haven't you got work to be doing?",
+        "Want to see something amazing? Look in a mirror :)",
+        "Check me out @ https://github.com/GlennHS !",
+        "Caches are like hugs. Best when warm <3",
+        "Now sponsored by absolutely no one!",
+        "If it ain't broke, Seabrook's not touched it yet",
+        "Now with theming, you're welcome Seabrook",
+        `Proudly remembering Dan B for ${Math.floor((Date.now() - Date.parse("2021-09-30")) / 86400000)} days`
+      ]
+      document.getElementById("egg").innerText = `(${vaguelyAmusing[Math.floor(Math.random() * vaguelyAmusing.length)]})`
+    })
+    // #endregion
+
+    // #region Theming
+    const themes = []
+    $("link[theme]").each((i, e) => {
+      const $e = $(e)
+      const href = $e.attr("href")
+      themes.push(new RegExp("css\/([a-z\-]+)", "gi").exec(href)[1])
+    });
+
+    const toggleTheme = () => {
+      chosenTheme = themes[(themes.indexOf(chosenTheme) + 1) % themes.length];
+      setTheme()
+    }
+
+    const setTheme = () => {
+      Array.from(document.querySelectorAll("link[theme]")).forEach(e => e.disabled = true)
+      document.querySelector(`link[href*='/${chosenTheme}.css']`).disabled = false;
+    }
+    // #endregion
 
     const generateMsg = () => {
       let outElem = document.getElementById("output"),
@@ -348,117 +490,6 @@
       copyDivToClipboard()
     }
 
-    const ctrlShortcuts = {
-      "Delete": deleteTaskShortcut,
-      "#": addTask,
-      "ArrowUp": () => changeFocus(true),
-      "ArrowDown": () => changeFocus(false),
-      "/": function() {
-        if($("#capacity")[0] === document.activeElement) {
-          $("#task-holder .task:last-child input[name='taskname']").focus()
-        } else {
-          $("#capacity").focus();
-        }
-      },
-      "Enter": function() {
-        generateMsg();
-        setTimeout(copyDivToClipboard, 500)
-      },
-    };
-
-    // #region Top Button Widgets
-    const toggleScreenDimmer = () => $("#screen-dimmer").toggleClass("hidden")
-
-    const toggleHighsLowsWidget = () => {
-      toggleScreenDimmer();
-      $("#highsLowsWidget").toggleClass("hidden")
-    }
-
-    const toggleTodoWidget = () => {
-      toggleScreenDimmer();
-      $("#todoWidget").toggleClass("hidden")
-    }
-    // #endregion
-
-    // #region Event Listeners
-    const updateInputFocusoutListener = () => {
-      $("input").on('focusout', updateTasksFromDOM)
-      $("select").on('focusout', updateTasksFromDOM)
-    }
-
-    $("#capacity").change(capacityPrettify)
-
-    document.addEventListener('keydown', (e) => {
-      // If ctrl key is active, look up a function to run
-      // in ctrlShortcuts depending on the key pressed.
-      if (e.ctrlKey && ctrlShortcuts[e.key]) {
-        const functionToRun = ctrlShortcuts[e.key];
-        functionToRun();
-      }
-    });
-
-    $("input[name='addTask']").click(addTask)
-
-    $('.priority').on('click', () => {
-
-    })
-
-    $("input[name='generateMsg']").click(() => {
-      generateMsg();
-      document.getElementById("output").scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
-    })
-
-    $('h1').click( () => {
-      const vaguelyAmusing = [
-        "Now with 20% less sodium!",
-        "No animals were harmed in the making of this site!",
-        "It Probably Works™",
-        "Private Header: Do Not Read",
-        "Clinically proven to cure bad breath!",
-        "Now it only breaks SOME of the time!",
-        "ORBS ORBS ORBS ORBS",
-        "You're Our Millionth Customer!",
-        "Please click gently, it's delicate...",
-        "Now completely vegan!",
-        "Built with <3... mostly.",
-        "How do you keep an idiot in suspense?",
-        "'Firefox annoys me' edition.",
-        "Now proudly NOT supporting IE.",
-        "Haven't you got work to be doing?",
-        "Want to see something amazing? Look in a mirror :)",
-        "Check me out @ https://github.com/GlennHS !",
-        "Caches are like hugs. Best when warm <3",
-        "Now sponsored by absolutely no one!",
-        "If it ain't broke, Seabrook's not touched it yet",
-        "Now with theming, you're welcome Seabrook",
-        `Proudly remembering Dan B for ${Math.floor((Date.now() - Date.parse("2021-09-30")) / 86400000)} days`
-      ]
-      document.getElementById("egg").innerText = `(${vaguelyAmusing[Math.floor(Math.random() * vaguelyAmusing.length)]})`
-    })
-    // #endregion
-
-    // #region Theming
-    debugger;
-    const themes = []
-    $("link[theme]").each((i, e) => {
-      const $e = $(e)
-      console.log($e)
-      const href = $e.attr("href")
-      themes.push(new RegExp("css\/([a-z\-]+)", "gi").exec(href)[1])
-    });
-    debugger;
-
-    const toggleTheme = () => {
-      chosenTheme = themes[(themes.indexOf(chosenTheme) + 1) % themes.length];
-      setTheme()
-    }
-
-    const setTheme = () => {
-      Array.from(document.querySelectorAll("link[theme]")).forEach(e => e.disabled = true)
-      document.querySelector(`link[href*='/${chosenTheme}.css']`).disabled = false;
-    }
-    // #endregion
-
     const legacyTasklistHandling = () => {
       try {
         let storedJSON = JSON.parse(localStorage.getItem("tasklistV2"))
@@ -484,6 +515,7 @@
       } catch {}
     }
 
+    // #region Onload/Unload
     document.onload = async function() {
       legacyTasklistHandling();
       setTheme();
@@ -494,6 +526,7 @@
     window.addEventListener("beforeunload", function(e){
       setStorage()
     });
+    // #endregion
   </script>
 </body>
 
