@@ -13,6 +13,8 @@
   <link rel="stylesheet" theme href="./assets/css/light.css">
   <link rel="stylesheet" theme href="./assets/css/dark.css">
   <link rel="stylesheet" theme href="./assets/css/spook.css">
+  <link rel="stylesheet" theme href="./assets/css/accessibilityLight.css">
+  <link rel="stylesheet" theme href="./assets/css/accessibilityDark.css">
   <script defer src="./assets/fontawesome/js/all.min.js"></script>
 </head>
 
@@ -152,10 +154,8 @@
       try {
         let storedJSON = JSON.parse(localStorage.getItem("tasklistV2"))
         let capacityVal = storedJSON.capacity
-        if(nullCheck(storedJSON.exactCapacity) != "" && storedJSON.exactCapacity != "0") {
+        if(nullCheck(storedJSON.exactCapacity) != "" && storedJSON.exactCapacity != 0) {
           $('input[name="exact-capacity"]').val(storedJSON.exactCapacity)
-        } else {
-          $('input[name="exact-capacity"]').val("0")
         }
         if(tasks.length === 0) {
           tasks = storedJSON.tasklist
@@ -335,7 +335,7 @@
 
       if(capacity == "Light") { msg += "✋" }
       else if(capacity == "Full") { msg += "💯" }
-      if(exactCapacity && exactCapacity != "0") { msg += "<br />Exact utilisation: " + $("input[name='exact-capacity']").val()}
+      if(exactCapacity && exactCapacity != 0) { msg += "<br />Exact utilisation: " + $("input[name='exact-capacity']").val()}
       if($("#capacity").val() == "Overloaded") {
         msg = `⚠⚠⚠⚠⚠<br />${msg}<br />⚠⚠⚠⚠⚠`;
       }
@@ -438,9 +438,18 @@
     // #endregion
 
     // #region Theming
-    const themes = ["light", "dark", "spook"];
+    debugger;
+    const themes = []
+    $("link[theme]").each((i, e) => {
+      const $e = $(e)
+      console.log($e)
+      const href = $e.attr("href")
+      themes.push(new RegExp("css\/([a-z\-]+)", "gi").exec(href)[1])
+    });
+    debugger;
+
     const toggleTheme = () => {
-      chosenTheme = themes[(themes.indexOf(chosenTheme) + 1) % 3];
+      chosenTheme = themes[(themes.indexOf(chosenTheme) + 1) % themes.length];
       setTheme()
     }
 

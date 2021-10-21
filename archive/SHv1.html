@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scrum Helper</title>
+  <link rel="icon" 
+      type="image/png" 
+      href="../favicon.png">
+  <link rel="stylesheet" href="./assets/css/light.css">
+  <link rel="stylesheet" href="./assets/css/dark.css">
+	<script>
+		confirm("Would you like to go to the NEW Scrum Helper?") && window.open("https://glennhs.co.uk/scrumhelperV2", "_blank")
+	</script>
+</head>
+
+<body>
+  <main>
+    <h2>Scrum Helper: It Probably Works™</h2>
+    <h3 id="egg">Asynchronous coding hurts my head edition!</h3>
+    <div id="shortcuts">
+      <p id="quirks"><em><strong>Known Quirks:</strong> In Firefox if you Ctrl+Enter while focused on capacity it won't copy to clipboard.</em></p>
+      <table>
+        <tr>
+          <td><strong>Ctrl+#</strong></td>
+          <td>Add task and focus it</td>
+        </tr>
+        <tr>
+          <td><strong>Ctrl+Del</strong></td>
+          <td>Delete current task and focus previous task</td>
+        </tr>
+        <tr>
+          <td><strong>Ctrl+Up/Down</strong></td>
+          <td>Go to previous/next task</td>
+        </tr>
+        <tr>
+          <td><strong>Tab/Shift+Tab</strong></td>
+          <td>Go to next/previous input field</td>
+        </tr>
+        <tr>
+          <td><strong>Ctrl+/</strong></td>
+          <td>Swap between capacity dropdown and last task</td>
+        </tr>
+        <tr>
+          <td><strong>Ctrl+Enter</strong></td>
+          <td>Generate message and copy it to clipboard</td>
+        </tr>
+      </table>
+      <button onclick="toggleTheme()">Change Theme</button>
+    </div>
+    <div id="output"></div>
+    <div id="pre-task-details">
+      <label for="username">Your Name:</label>
+      <input type="text" name="username" placeholder="Dan Brown">
+    </div>
+    <div id="task-holder">
+      <form id="task-1">
+        <label for="taskname">Clarizen Task:</label>
+        <input type="text" autofocus name="taskname" placeholder="Clarizen Task Name">
+        <label for="blocked">Blocked?</label>
+        <select name="blocked">
+          <option value="No">No</option>
+          <option value="Partial">Partial</option>
+          <option value="Yes">Yes</option>
+        </select>
+        <label for="status">Status Update:</label>
+        <input type="text" name="status" placeholder="Status Update">
+        <input type="button" name="delete" value="Delete Task">
+      </form>
+    </div>
+    <br />
+    <form id="main-controls">
+      <label for="capacity">Capacity:</label>
+      <select id="capacity" class="Light" name="capacity">
+        <option value="Light" selected>Light - &gt;3 hours available capacity // &lt;50% Full </option>
+        <option value="Medium">Medium - 1-3 hours available capacity // 50-85% Full </option>
+        <option value="Busy">Busy - &lt;1 hour available capacity, on-track // 85-95% Full </option>
+        <option value="Full">Full - No free capacity, on-track // 100% Full </option>
+        <option value="Overloaded">!Overloaded! - Can't meet current deadlines with unblocked work, off-track // &gt;100%
+          Full </option>
+      </select>
+      <input type="button" value="Add Task" name="addTask">
+      <input type="button" value="Generate Message" name="generateMsg">
+    </form>
+    <br />
+    <div id="cute-container">
+      <img id="cute" src="https://placekitten.com/200/200" />
+      <!-- <textarea id="subreddit-list" placeholder="aww, rarepuppers, blop, blep, sploot"></textarea> -->
+    </div>
+    <textarea tabindex="-1" id="fallback"></textarea>
+  </main>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script async defer>
+    let taskCount = 1, usingLightTheme = false;
+
+    const copyDivToClipboard = () => {
+
+      if (!navigator.userAgent.includes("Firefox")) {
+        var range = document.createRange();
+        range.selectNode(document.getElementById("output"));
+        window.getSelection().removeAllRanges(); // clear current selection
+        window.getSelection().addRange(range); // to select text
+        document.execCommand("copy");
+        window.getSelection().removeAllRanges(); // to deselect
+      } else {
+        console.log("Using Mozilla, fallback used")
+        document.getElementById("fallback").value = document.getElementById("output").innerText
+        document.getElementById("fallback").focus()
+        document.getElementById("fallback").select()
+        document.execCommand("copy")
+      }
+      document.getElementById("output").scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
+    }
+
+    const createElementFromHTML = (htmlString) => {
+      var div = document.createElement('div');
+      div.innerHTML = htmlString.trim();
+
+      return div.firstChild;
+    }
+
+    const nullCheck = (v) => { return v ? v : "" }
+
+    /**
+     * Storage Functions 
+     * Storage formatted TASKNAME||TASKSTATUS||BLOCKED
+     * "###" Delimited
+     * Capacity at the end
+     */
+    const setStorage = () => {
+      try {
+        let storageJSON = {
+          "tasklist": [],
+          "capacity": "Low",
+          "subreddits": [],
+          "theme": "pastel"
+        }
+        $("#task-holder")[0].querySelectorAll("form").forEach(form => {
+          storageJSON.tasklist.push({
+            "name": nullCheck(form.querySelector("input[name='taskname']").value),
+            "status": nullCheck(form.querySelector("input[name='status']").value),
+            "blocked": form.querySelector("select[name='blocked']").value
+          })
+        })
+        storageJSON.capacity = $("#capacity").val()
+        // storageJSON.subreddits = nullCheck($("#subreddit-list").val()).split(",")
+        storageJSON.username = document.querySelector('input[name="username"]').value
+        storageJSON.theme = usingLightTheme ? "pastel" : "dark"
+        localStorage.setItem("tasklistV2", JSON.stringify(storageJSON))
+      } catch(e) { console.log(e); }
+    }
+
+    const getStorage = () => {
+      try {
+        let storedJSON = JSON.parse(localStorage.getItem("tasklistV2")) || "John Doe"
+        let subredditList = storedJSON.subreddits
+        let capacityVal = storedJSON.capacity
+        $("#task-holder")[0].innerHTML = ""
+        storedJSON.tasklist.forEach(t => {
+          addTask()
+          let taskElem = $("#task-holder")[0].lastChild
+          taskElem.querySelector("input[name='taskname']").value = t.name
+          taskElem.querySelector("input[name='status']").value = t.status
+          taskElem.querySelector("select[name='blocked']").value = t.blocked
+        })
+        $("#capacity").val(storedJSON.capacity)
+        // $("#subreddit-list").val(storedJSON.subreddits.join(","))
+        // subredditListReady = true;
+        capacityPrettify()
+        if(storedJSON.username != undefined) {
+          document.querySelector('input[name="username"]').value = storedJSON.username
+        }
+        if(storedJSON.theme == "pastel") {
+          toggleTheme()
+        }
+      } catch(e) { console.log(e); }
+    }
+
+    const capacityPrettify = () => { $("#capacity")[0].classList = $("#capacity").val(); }
+
+    const changeFocus = (movinOnUp) => {
+      const currFormID = $("input:focus").parent("form").attr("id");
+      const forms = Array.from(document.querySelectorAll("#task-holder form"))
+      for (let i = 0; i < forms.length; i++) {
+        if (forms[i].id == currFormID) {
+          if (movinOnUp) {
+            try {
+              forms[i - 1].querySelector("input[name='taskname']").focus()
+            } catch {}
+          } else {
+            try {
+              forms[i + 1].querySelector("input[name='taskname']").focus()
+            } catch {}
+          }
+        }
+      }
+    }
+
+    const deleteTask = () => {
+      try {
+        let focussedBtn = document.querySelector("input[name='delete']:focus")
+        $(focussedBtn.parentElement.previousSibling).children("input[name='taskname']").focus();
+        focussedBtn.parentElement.remove();
+        deleted = true
+      } catch { }
+    }
+
+    const deleteTaskShortcut = () => {
+      try {
+        let focussedInput = document.querySelector("#task-holder input[type='text']:focus")
+        $(focussedInput.parentElement.previousSibling).children("input[name='taskname']").focus();
+        focussedInput.parentElement.remove();
+      } catch (e) {}
+    }
+
+    const addTask = () => {
+      taskCount++;
+      let newTask = createElementFromHTML(`
+      <form id="task-${taskCount}">
+        <label for="taskname">Clarizen Task:</label>
+        <input type="text" name="taskname" placeholder="Clarizen Task Name">
+        <label for="blocked">Blocked?</label>
+        <select name="blocked">
+          <option value="No">No</option>
+          <option value="Partial">Partial</option>
+          <option value="Yes">Yes</option>
+        </select>
+        <label for="status">Status Update:</label>
+        <input type="text" name="status" placeholder="Status Update">
+        <input type="button" name="delete" value="Delete Task">
+      </form>
+      `)
+      $("#task-holder").append(newTask);
+
+      $("input[name='delete']").click(deleteTask)
+
+      $(newTask).children("input[name='taskname']").focus();
+    };
+
+    const generateMsg = () => {
+      let outElem = document.getElementById("output"),
+        numBlocked = 0,
+        msg = "",
+        name = $('input[name="username"]').val().trim();
+
+      if(name !== "" && name !== "John Doe") {
+        msg += `<strong>${name}</strong><br/><strong>${(new Date()).toLocaleDateString('ko-KR')}</strong><br/><br/>`
+      }
+
+      $("#task-holder")[0].querySelectorAll("form").forEach(form => {
+        const tName = form.querySelector("input[name='taskname']").value;
+        const tStatus = form.querySelector("input[name='status']").value;
+        const tBlocked = form.querySelector("select[name='blocked']").value;
+
+        if(!(tBlocked === "No")) { numBlocked++; }
+
+        msg +=
+          `<strong>Task: ${tName}</strong>${"<br />"}Status: ${tStatus}<br /><i>Blocked: ${tBlocked}</i><br /><br />`
+      })
+      msg += `Number of Tasks Blocked: ${numBlocked}<br />`
+      msg += `<u><b>Available Capacity: ${$("#capacity").val()}</b></u>`;
+
+      if($("#capacity").val() == "Light") { msg += "✋" }
+      else if($("#capacity").val() == "Full") { msg += "💯" }
+      else if($("#capacity").val() == "Overloaded") {
+        msg = `⚠⚠⚠⚠⚠<br />${msg}<br />⚠⚠⚠⚠⚠`;
+      }
+
+      outElem.innerHTML = msg;
+
+      outElem.style.height = "";
+      outElem.style.height = outElem.scrollHeight + "px"
+      setStorage()
+      copyDivToClipboard()
+    }
+
+    const ctrlShortcuts = {
+      "Delete": deleteTaskShortcut,
+      "#": addTask,
+      "ArrowUp": () => changeFocus(true),
+      "ArrowDown": () => changeFocus(false),
+      "/": function() {
+        if($("#capacity")[0] === document.activeElement) {
+          $("#task-holder form:last-child input[name='taskname']").focus()
+        } else {
+          $("#capacity").focus();
+        }
+      },
+      "Enter": function() {
+        generateMsg();
+        setTimeout(copyDivToClipboard, 500)
+      },
+    };
+
+    // Event Listeners
+    $("#capacity").change(capacityPrettify)
+
+    document.addEventListener('keydown', (e) => {
+      // If ctrl key is active, look up a function to run
+      // in ctrlShortcuts depending on the key pressed.
+      if (e.ctrlKey && ctrlShortcuts[e.key]) {
+        const functionToRun = ctrlShortcuts[e.key];
+        functionToRun();
+      }
+    });
+
+    $("input[name='addTask']").click(addTask)
+
+    document.querySelectorAll("input[name='delete']").forEach(elem => {
+      elem.onclick = deleteTask
+    })
+
+    $("input[name='generateMsg']").click(() => {
+      generateMsg();
+      document.getElementById("output").scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
+    })
+
+    $('h2').click( () => {
+      const vaguelyAmusing = [
+        "Now with 20% less sodium!",
+        "No animals were harmed in the making of this site!",
+        "It Probably Works™",
+        "Private Header: Do Not Read",
+        "Clinically proven to cure bad breath!",
+        "Now it only breaks SOME of the time!",
+        "ORBS ORBS ORBS ORBS",
+        "You're Our Millionth Customer!",
+        "Please click gently, it's delicate...",
+        "Now completely vegan!",
+        "Built with <3... mostly.",
+        "How do you keep an idiot in suspense?",
+        "'Firefox annoys me' edition.",
+        "Now proudly NOT supporting IE.",
+        "Haven't you got work to be doing?",
+        "Want to see something amazing? Look in a mirror :)",
+        "Check me out @ https://github.com/GlennHS !",
+        "Caches are like hugs. Best when warm <3",
+        "Now sponsored by absolutely no one!",
+        "If it ain't broke, Seabrook's not touched it yet",
+        "Now with theming, you're welcome Seabrook",
+        `Proudly remembering Dan B for ${Math.floor((Date.now() - Date.parse("2021-09-30")) / 86400000)} day(s)`
+      ]
+      document.getElementById("egg").innerText = `(${vaguelyAmusing[Math.floor(Math.random() * vaguelyAmusing.length)]})`
+    })
+
+    async function sanitiseSubreddits(subredditList) {
+      return await subredditList.filter( async (sub) => {
+        res = await fetch(`https://www.reddit.com/r/${subredditList[Math.floor(Math.random() * subredditList.length)]}/top.json`)
+        res = res.json()
+        try {
+          //alert(res.data.after)
+          if(res.data.after != "") {
+            alert(`Checked ${sub}. Response`)
+            return true;
+          }
+        } catch {
+          return false;
+        }
+      })
+    }
+
+    async function scrapeFromReddit() {
+      let notChosen = true, tmp, subredditList
+      while(notChosen) {
+        subredditList = await nullCheck($('#subreddit-list').val().split(","))
+        subredditList = await sanitiseSubreddits(subredditList)
+        alert(`subList: ${subredditList}`)
+        if(subredditList.length === 0) { subredditList = ["rarepuppers"]}
+        subredditList = subredditList.map(s => s.trim() )
+        while(notChosen) {
+          try {
+            await fetch(`https://www.reddit.com/r/${subredditList[Math.floor(Math.random() * subredditList.length)]}/top.json`)
+              .then( (res) => res.json())
+              .then( (res) => {
+                try {
+                  while(notChosen) {
+                    tmp = res.data.children[Math.floor(Math.random() * res.data.children.length)]
+                    if(tmp.data.post_hint == "image") { notChosen = false }
+                  }
+                } catch (e) {console.error(e)}
+                $('#cute').attr("src", tmp.data.preview.images[0].source.url.replace("&amp;", "&"))
+              })
+          } catch {}
+        }
+      }
+    }
+
+    window.addEventListener("beforeunload", function(e){
+      setStorage()
+    });
+
+    const toggleTheme = () => {
+      document.querySelector("link[href='./assets/css/light.css']").disabled = usingLightTheme
+      document.querySelector("link[href='./assets/css/dark.css']").disabled = !usingLightTheme
+      usingLightTheme = !usingLightTheme
+    }
+
+    document.onload = async function() {
+      getStorage();
+      //scrapeFromReddit();
+    }()
+  </script>
+</body>
+
+</html>
