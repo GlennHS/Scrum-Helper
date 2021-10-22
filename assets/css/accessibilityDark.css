@@ -1,8 +1,31 @@
-@import url("https://fonts.googleapis.com/css2?family=Andada+Pro:ital,wght@0,400;0,700;1,400;1,700&family=Hind+Siliguri:wght@400;700&display=swap");
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("../fonts/OpenDyslexic-Regular.otf");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("../fonts/OpenDyslexic-Italic.otf");
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("../fonts/OpenDyslexic-Bold.otf");
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("../fonts/OpenDyslexic-BoldItalic.otf");
+  font-weight: 700;
+  font-style: italic;
+}
 body {
-  background: #1a1a1a;
-  color: #eee;
-  font: 16px/24px "Hind Siliguri";
+  background: #000;
+  color: #fff;
+  font: 16px/18px "OpenDyslexic";
 }
 body ::placeholder {
   font-size: 18px;
@@ -11,7 +34,7 @@ body ::placeholder {
 
 main {
   padding: 30px 10%;
-  background: #3b3b3b;
+  background: #111;
   min-height: calc(100vh - 80px);
   height: auto;
 }
@@ -29,15 +52,15 @@ input[type=number] {
 }
 
 h1 {
-  font: bolder 48px/52px "Andada Pro";
+  font: bolder 48px/52px "OpenDyslexic";
 }
 
 h2 {
-  font: bold 28px/48px "Andada Pro";
+  font: bold 28px/48px "OpenDyslexic";
 }
 
 h3 {
-  font: 28px/32px "Andada Pro";
+  font: 28px/32px "OpenDyslexic";
 }
 
 h1, h2, h3, #quirks {
@@ -46,7 +69,7 @@ h1, h2, h3, #quirks {
 }
 
 input {
-  border: #e72176 solid 2px;
+  border: #fff solid 2px;
   border-radius: 5px;
   height: 24px;
 }
@@ -60,12 +83,12 @@ button, input[type=button] {
 }
 
 a {
-  color: #ec4d91;
+  color: #f3f;
   text-decoration: underline;
 }
 
 a:visited {
-  color: #c61561;
+  color: #d600d6;
 }
 
 select {
@@ -103,7 +126,7 @@ select:focus {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #3b3b3b;
+  background-color: #111;
   width: 60%;
   height: 60%;
   top: 20%;
@@ -132,10 +155,10 @@ select:focus {
 }
 
 #shortcuts {
-  background: #5a5a5a;
+  background: #222;
   margin-bottom: 20px;
   padding: 30px;
-  border: #e72176 solid 1px;
+  border: #fff solid 1px;
   border-radius: 5px;
   display: flex;
   flex-flow: column;
@@ -199,8 +222,8 @@ select:focus {
 }
 
 #task-holder .task {
-  background: #5a5a5a;
-  border: #e72176 solid 2px;
+  background: #222;
+  border: #fff solid 2px;
   padding: 5px;
   display: grid;
   grid-template: repeat(4, 1fr)/repeat(12, 1fr);
@@ -214,18 +237,18 @@ select:focus {
 }
 #task-holder .task .priority {
   padding: 3px;
-  background: #737373;
+  background: #434343;
   text-align: center;
   font-size: 24px;
-  color: #ec4d91;
+  color: #f3f;
   transition: 0.5s ease;
 }
 #task-holder .task .priority:hover {
   transition: 0.5s ease;
   padding-left: 30%;
-  background: #3b3b3b;
-  color: #f5a6c8;
-  border-left: solid 10px #e72176;
+  background: #161616;
+  color: #ff99ff;
+  border-left: solid 10px #fff;
   cursor: pointer;
 }
 #task-holder .task .priority-top {
@@ -275,8 +298,8 @@ select:focus {
 }
 
 #main-controls {
-  background: #5a5a5a;
-  border: #e72176 solid 2px;
+  background: #222;
+  border: #fff solid 2px;
   width: 100%;
   padding: 15px;
   display: grid;
@@ -340,4 +363,4 @@ select:focus {
   }
 }
 
-/*# sourceMappingURL=dark.css.map */
+/*# sourceMappingURL=accessibilityDark.css.map */

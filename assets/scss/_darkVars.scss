@@ -1,3 +1,20 @@
-$theme-1: #3a3a3a;
-$theme-2: #5b5b5b;
-$font-color: #eee;
+@use 'sass:color';
+
+@import url('https://fonts.googleapis.com/css2?family=Andada+Pro:ital,wght@0,400;0,700;1,400;1,700&family=Hind+Siliguri:wght@400;700&display=swap');
+
+$ct-pink: #e72176;
+
+$body-bg: #1a1a1a;
+$main-container-bg: #3b3b3b;
+$task-bg: #5a5a5a;
+$border-color: $ct-pink;
+
+$body-font-color: #eee;
+$section-font-color: #eee;
+$font-emphasis-color: color.scale($ct-pink, $lightness: 20%);
+
+$font-h1: bolder 48px / 52px 'Andada Pro';
+$font-h2: bold 28px / 48px'Andada Pro';
+$font-h3: 28px / 32px'Andada Pro';
+$body-font: 16px / 24px 'Hind Siliguri';
+$body-font-emph: italic 16px / 20px 'Hind Siliguri';

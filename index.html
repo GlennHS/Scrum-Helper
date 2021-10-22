@@ -8,17 +8,22 @@
   <title>Scrum Helper</title>
   <link rel="icon" 
       type="image/png" 
-      href="./favicon.png">
-  <link rel="stylesheet" href="./assets/css/light.css">
-  <link rel="stylesheet" href="./assets/css/dark.css">
+      href="../favicon.png">
+  <link rel="stylesheet" href="./assets/fontawesome/css/all.min.css">
+  <link rel="stylesheet" theme href="./assets/css/light.css">
+  <link rel="stylesheet" theme href="./assets/css/dark.css">
+  <link rel="stylesheet" theme href="./assets/css/spook.css">
+  <link rel="stylesheet" theme href="./assets/css/accessibilityLight.css">
+  <link rel="stylesheet" theme href="./assets/css/accessibilityDark.css">
+  <script defer src="./assets/fontawesome/js/all.min.js"></script>
 </head>
 
 <body>
   <main>
-    <h2>Scrum Helper: It Probably Works™</h2>
-    <h3 id="egg">Asynchronous coding hurts my head edition!</h3>
+    <h1>Scrum Helper: It Probably Works™</h1>
+    <h2 id="egg">A Daily Choose Your Own Adventure!</h2>
     <div id="shortcuts">
-      <p id="quirks"><em><strong>Known Quirks:</strong> In Firefox if you Ctrl+Enter while focused on capacity it won't copy to clipboard.</em></p>
+      <p id="quirks"><em><strong>Current Issues: </strong><a href="https://gisthub.com/GlennHS/Scrum-Helper/projects/1">Please see issues tracker for all known issues and their most recent status</a></em></p>
       <table>
         <tr>
           <td><strong>Ctrl+#</strong></td>
@@ -45,28 +50,29 @@
           <td>Generate message and copy it to clipboard</td>
         </tr>
       </table>
-      <button onclick="toggleTheme()">Change Theme</button>
+      <div id="top-buttons">
+        <button onclick="toggleHighsLowsWidget()">Highs+Lows Tracker</button>
+        <button onclick="toggleTheme()">Change Theme</button>
+        <button onclick="toggleTodoWidget()">Show Todo List</button>
+      </div>
+    </div>
+    <div id="screen-dimmer" class="hidden"></div>
+    <div id="highsLowsWidget" class="widget hidden">
+      <h3>Highs + Lows</h3>
+      <textarea></textarea>
+      <button onclick="toggleHighsLowsWidget()">Close</button>
+    </div>
+    <div id="todoWidget" class="widget hidden">
+      <h3>TODO</h3>
+      <textarea></textarea>
+      <button onclick="toggleTodoWidget()">Close</button>
     </div>
     <div id="output"></div>
     <div id="pre-task-details">
-      <label for="username">Your Name:</label>
+      <label for="username">Your Name: </label>
       <input type="text" name="username" placeholder="Dan Brown">
     </div>
-    <div id="task-holder">
-      <form id="task-1">
-        <label for="taskname">Clarizen Task:</label>
-        <input type="text" autofocus name="taskname" placeholder="Clarizen Task Name">
-        <label for="blocked">Blocked?</label>
-        <select name="blocked">
-          <option value="No">No</option>
-          <option value="Partial">Partial</option>
-          <option value="Yes">Yes</option>
-        </select>
-        <label for="status">Status Update:</label>
-        <input type="text" name="status" placeholder="Status Update">
-        <input type="button" name="delete" value="Delete Task">
-      </form>
-    </div>
+    <div id="task-holder"></div>
     <br />
     <form id="main-controls">
       <label for="capacity">Capacity:</label>
@@ -78,23 +84,23 @@
         <option value="Overloaded">!Overloaded! - Can't meet current deadlines with unblocked work, off-track // &gt;100%
           Full </option>
       </select>
+      <label for="exact-capacity">Utilisation % (optional): </label>
+      <input name="exact-capacity" type="number" value="0">
       <input type="button" value="Add Task" name="addTask">
       <input type="button" value="Generate Message" name="generateMsg">
     </form>
     <br />
     <div id="cute-container">
-      <img id="cute" src="https://placekitten.com/200/200" />
-      <!-- <textarea id="subreddit-list" placeholder="aww, rarepuppers, blop, blep, sploot"></textarea> -->
+      <img id="cute" src="https://cataas.com/cat/cute" style="width: 200px; height: 200px;object-fit: cover;"/>
     </div>
     <textarea tabindex="-1" id="fallback"></textarea>
   </main>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
-    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="assets/jquery-3.6.0.min.js"></script>
   <script async defer>
-    let taskCount = 1, usingLightTheme = false;
+    let chosenTheme = "dark", tasks = [], currentTaskNum = 0;
 
+    // #region Utility Functions
     const copyDivToClipboard = () => {
-
       if (!navigator.userAgent.includes("Firefox")) {
         var range = document.createRange();
         range.selectNode(document.getElementById("output"));
@@ -121,159 +127,213 @@
 
     const nullCheck = (v) => { return v ? v : "" }
 
-    /**
-     * Storage Functions 
-     * Storage formatted TASKNAME||TASKSTATUS||BLOCKED
-     * "###" Delimited
-     * Capacity at the end
-     */
+    const capacityPrettify = () => { $("#capacity")[0].classList = $("#capacity").val(); }
+
+    const changeFocus = (movinOnUp) => {
+      const $currDiv = $("input:focus").parent(".task");
+      if(movinOnUp) {
+        try {
+          $currDiv.prev(".task").find("input[name='taskname']").focus()
+        } catch {}
+      } else {
+        try {
+          $currDiv.next(".task").find("input[name='taskname']").focus()
+        } catch {}
+      }
+    }
+    // #endregion
+
+    // #region Storage Get/Set
     const setStorage = () => {
       try {
         let storageJSON = {
           "tasklist": [],
           "capacity": "Low",
+          "exactCapacity": "",
           "subreddits": [],
-          "theme": "pastel"
+          "theme": "pastel",
+          "username": "",
+          "todo": "",
+          "highsLows": ""
         }
-        $("#task-holder")[0].querySelectorAll("form").forEach(form => {
-          storageJSON.tasklist.push({
-            "name": nullCheck(form.querySelector("input[name='taskname']").value),
-            "status": nullCheck(form.querySelector("input[name='status']").value),
-            "blocked": form.querySelector("select[name='blocked']").value
-          })
-        })
+        storageJSON.tasklist = tasks
         storageJSON.capacity = $("#capacity").val()
-        // storageJSON.subreddits = nullCheck($("#subreddit-list").val()).split(",")
-        storageJSON.username = document.querySelector('input[name="username"]').value
-        storageJSON.theme = usingLightTheme ? "pastel" : "dark"
+        storageJSON.exactCapacity = $('input[name="exact-capacity"]').val()
+        storageJSON.username = $('input[name="username"]').val()
+        storageJSON.theme = chosenTheme
+        storageJSON.todo = $("#todoWidget textarea").val()
+        storageJSON.highsLows = $("#highsLowsWidget textarea").val()
+
         localStorage.setItem("tasklistV2", JSON.stringify(storageJSON))
       } catch(e) { console.log(e); }
     }
 
     const getStorage = () => {
       try {
-        let storedJSON = JSON.parse(localStorage.getItem("tasklistV2")) || "John Doe"
-        let subredditList = storedJSON.subreddits
+        let storedJSON = JSON.parse(localStorage.getItem("tasklistV2"))
         let capacityVal = storedJSON.capacity
-        $("#task-holder")[0].innerHTML = ""
-        storedJSON.tasklist.forEach(t => {
-          addTask()
-          let taskElem = $("#task-holder")[0].lastChild
-          taskElem.querySelector("input[name='taskname']").value = t.name
-          taskElem.querySelector("input[name='status']").value = t.status
-          taskElem.querySelector("select[name='blocked']").value = t.blocked
-        })
+        if(nullCheck(storedJSON.exactCapacity) != "" && storedJSON.exactCapacity != 0) {
+          $('input[name="exact-capacity"]').val(storedJSON.exactCapacity)
+        }
+        if(tasks.length === 0) {
+          tasks = storedJSON.tasklist
+        }
+        currentTaskNum = Math.max(...(tasks.map(t=>t.id)))
+        updateDOMFromTasks()
+        $("#todoWidget textarea").val(storedJSON.todo)
+        $("#highsLowsWidget textarea").val(storedJSON.highsLows)
         $("#capacity").val(storedJSON.capacity)
-        // $("#subreddit-list").val(storedJSON.subreddits.join(","))
-        // subredditListReady = true;
         capacityPrettify()
         if(storedJSON.username != undefined) {
           document.querySelector('input[name="username"]').value = storedJSON.username
         }
-        if(storedJSON.theme == "pastel") {
-          toggleTheme()
-        }
+        chosenTheme = storedJSON.theme;
+        setTheme();
       } catch(e) { console.log(e); }
     }
+    // #endregion
 
-    const capacityPrettify = () => { $("#capacity")[0].classList = $("#capacity").val(); }
-
-    const changeFocus = (movinOnUp) => {
-      const currFormID = $("input:focus").parent("form").attr("id");
-      const forms = Array.from(document.querySelectorAll("#task-holder form"))
-      for (let i = 0; i < forms.length; i++) {
-        if (forms[i].id == currFormID) {
-          if (movinOnUp) {
-            try {
-              forms[i - 1].querySelector("input[name='taskname']").focus()
-            } catch {}
-          } else {
-            try {
-              forms[i + 1].querySelector("input[name='taskname']").focus()
-            } catch {}
-          }
-        }
+    // #region Task Functions
+    const generateNewTask = () => {
+      currentTaskNum++
+      return {
+        id: currentTaskNum,
+        name: "",
+        status: "",
+        hours: 0,
+        blocked: "No"
       }
     }
 
-    const deleteTask = () => {
-      try {
-        let focussedBtn = document.querySelector("input[name='delete']:focus")
-        $(focussedBtn.parentElement.previousSibling).children("input[name='taskname']").focus();
-        focussedBtn.parentElement.remove();
-        deleted = true
-      } catch { }
+    const addTask = () => {
+      const newTask = generateNewTask()
+      tasks.push(newTask)
+      addTaskToDOM(newTask)
+    }
+
+    const deleteTask = (taskID) => {
+      tasks = tasks.filter(t => t.id != taskID)
+      deleteTaskFromDOM(taskID)
     }
 
     const deleteTaskShortcut = () => {
-      try {
-        let focussedInput = document.querySelector("#task-holder input[type='text']:focus")
-        $(focussedInput.parentElement.previousSibling).children("input[name='taskname']").focus();
-        focussedInput.parentElement.remove();
-      } catch (e) {}
+      const $focussedTaskElem = $("input:focus").parent(".task")
+      const taskID = $focussedTaskElem.attr("taskid")
+      $focussedTaskElem.prev().find("input[name='taskname']").focus()
+      deleteTask(taskID)
     }
 
-    const addTask = () => {
-      taskCount++;
-      let newTask = createElementFromHTML(`
-      <form id="task-${taskCount}">
+    const addTaskToDOM = (task) => {
+      const taskElem = createElementFromHTML(`
+      <div taskid="${task.id}" id="task-${task.id}" class="task">
+        <div class="priority priority-top" onclick="moveTaskTopPriority(${task.id})"><i class="fas fa-level-up-alt"></i></div>
+        <div class="priority priority-up" onclick="moveTaskUpPriority(${task.id})"><i class="fas fa-long-arrow-alt-up"></i></div>
+        <div class="priority priority-down" onclick="moveTaskDownPriority(${task.id})"><i class="fas fa-long-arrow-alt-down"></i></div>
+        <div class="priority priority-bottom" onclick="moveTaskBottomPriority(${task.id})"><i class="fas fa-level-down-alt"></i></div>
         <label for="taskname">Clarizen Task:</label>
-        <input type="text" name="taskname" placeholder="Clarizen Task Name">
+        <input type="text" autofocus name="taskname" placeholder="Clarizen Task Name" value="${task.name}">
         <label for="blocked">Blocked?</label>
         <select name="blocked">
           <option value="No">No</option>
           <option value="Partial">Partial</option>
           <option value="Yes">Yes</option>
         </select>
+        <label for="hours">Expected Hours:</label>
+        <input type="number" name="hours">
         <label for="status">Status Update:</label>
-        <input type="text" name="status" placeholder="Status Update">
-        <input type="button" name="delete" value="Delete Task">
-      </form>
+        <input type="text" name="status" placeholder="Status Update" value="${task.status}">
+        <input type="button" name="delete" value="Delete Task" onclick="deleteTask(${task.id})">
+      </div>
       `)
-      $("#task-holder").append(newTask);
-
-      $("input[name='delete']").click(deleteTask)
-
-      $(newTask).children("input[name='taskname']").focus();
-    };
-
-    const generateMsg = () => {
-      let outElem = document.getElementById("output"),
-        numBlocked = 0,
-        msg = "",
-        name = $('input[name="username"]').val().trim();
-
-      if(name !== "" && name !== "John Doe") {
-        msg += `<strong>${name}</strong><br/><strong>${(new Date()).toLocaleDateString('ko-KR')}</strong><br/><br/>`
-      }
-
-      $("#task-holder")[0].querySelectorAll("form").forEach(form => {
-        const tName = form.querySelector("input[name='taskname']").value;
-        const tStatus = form.querySelector("input[name='status']").value;
-        const tBlocked = form.querySelector("select[name='blocked']").value;
-
-        if(!(tBlocked === "No")) { numBlocked++; }
-
-        msg +=
-          `<strong>Task: ${tName}</strong>${"<br />"}Status: ${tStatus}<br /><i>Blocked: ${tBlocked}</i><br /><br />`
-      })
-      msg += `Number of Tasks Blocked: ${numBlocked}<br />`
-      msg += `<u><b>Available Capacity: ${$("#capacity").val()}</b></u>`;
-
-      if($("#capacity").val() == "Light") { msg += "✋" }
-      else if($("#capacity").val() == "Full") { msg += "💯" }
-      else if($("#capacity").val() == "Overloaded") {
-        msg = `⚠⚠⚠⚠⚠<br />${msg}<br />⚠⚠⚠⚠⚠`;
-      }
-
-      outElem.innerHTML = msg;
-
-      outElem.style.height = "";
-      outElem.style.height = outElem.scrollHeight + "px"
-      setStorage()
-      copyDivToClipboard()
+      $(taskElem).find(`select[name='blocked']`).val(task.blocked)
+      $(taskElem).find(`input[name='hours']`).attr("value", task.hours)
+      $("#task-holder").append(taskElem)
+      updateInputFocusoutListener()
+      $(taskElem).find("input[name='taskname']").focus()
     }
 
+    const deleteTaskFromDOM = (taskID) => {
+      $("#task-holder .task").remove(`.task[taskid='${taskID}']`)
+      updateTasksFromDOM()
+    }
+
+    const updateTasksFromDOM = () => {
+      tasks = []
+      $("#task-holder .task").each( (i, e) => {
+        const $taskElem = $(e)
+        tasks.push({
+          id: $taskElem.attr("taskid"),
+          name: $taskElem.find("input[name='taskname']").val(),
+          status: $taskElem.find("input[name='status']").val(),
+          hours: $taskElem.find("input[name='hours']").val(),
+          blocked: $taskElem.find("select[name='blocked']").val()
+        })
+      })
+    }
+
+    const updateDOMFromTasks = () => {
+      $('#task-holder').empty()
+      tasks.forEach( t => addTaskToDOM(t))
+    }
+
+    // #region Task Priority Changers
+    const moveTaskTopPriority = (taskID) => {
+      // swap task with one above in tasks
+      const indexOfTask = tasks.indexOf(tasks.find(t => t.id == taskID))
+      const temp = tasks[indexOfTask]
+      tasks.splice(indexOfTask, 1)
+      tasks.unshift(temp)
+      updateDOMFromTasks()
+    }
+
+    const moveTaskUpPriority = (taskID) => {
+      // swap task with one above in tasks
+      const indexOfTask = tasks.indexOf(tasks.find(t => t.id == taskID))
+      if(tasks[indexOfTask - 1]) {
+        const temp = tasks[indexOfTask - 1]
+        tasks[indexOfTask - 1] = tasks[indexOfTask]
+        tasks[indexOfTask] = temp
+        updateDOMFromTasks()
+      }
+    }
+
+    const moveTaskDownPriority = (taskID) => {
+      // swap task with one above in tasks
+      const indexOfTask = tasks.indexOf(tasks.find(t => t.id == taskID))
+      if(tasks[indexOfTask + 1]) {
+        const temp = tasks[indexOfTask + 1]
+        tasks[indexOfTask + 1] = tasks[indexOfTask]
+        tasks[indexOfTask] = temp
+        updateDOMFromTasks()
+      }
+    }
+
+    const moveTaskBottomPriority = (taskID) => {
+      // swap task with one above in tasks
+      const indexOfTask = tasks.indexOf(tasks.find(t => t.id == taskID))
+      const temp = tasks[indexOfTask]
+      tasks.splice(indexOfTask, 1)
+      tasks.push(temp)
+      updateDOMFromTasks()
+    }
+    // #endregion
+    // #endregion
+
+    // #region Top Button Widgets
+    const toggleScreenDimmer = () => $("#screen-dimmer").toggleClass("hidden")
+
+    const toggleHighsLowsWidget = () => {
+      toggleScreenDimmer();
+      $("#highsLowsWidget").toggleClass("hidden")
+    }
+
+    const toggleTodoWidget = () => {
+      toggleScreenDimmer();
+      $("#todoWidget").toggleClass("hidden")
+    }
+    // #endregion
+
+    // #region Event Listeners
     const ctrlShortcuts = {
       "Delete": deleteTaskShortcut,
       "#": addTask,
@@ -281,7 +341,7 @@
       "ArrowDown": () => changeFocus(false),
       "/": function() {
         if($("#capacity")[0] === document.activeElement) {
-          $("#task-holder form:last-child input[name='taskname']").focus()
+          $("#task-holder .task:last-child input[name='taskname']").focus()
         } else {
           $("#capacity").focus();
         }
@@ -292,7 +352,40 @@
       },
     };
 
-    // Event Listeners
+    const updateInputFocusoutListener = () => {
+      $("input").on('focusout', updateTasksFromDOM)
+      $("select").on('focusout', updateTasksFromDOM)
+      $('input[name="hours"]').on('focusout', () => {
+        // get all hours elems' values
+        let totHours = 0
+        $('input[name="hours"]').each( (i, e) => {
+          const $e = $(e)
+          if($e.val()) {
+            totHours += parseFloat($e.val())
+          }
+        })
+        // Add them and divide by 0.075 to get util%
+        // If Friday then actually 0.07 (FML)
+        let utilPercentage = 0;
+        if((new Date()).getDay() === 5) {
+          utilPercentage = Math.round(totHours / 0.07)
+        } else {
+          utilPercentage = Math.round(totHours / 0.075)
+        }
+
+        $('input[name="exact-capacity"]').val(utilPercentage)
+
+        let capacityName;
+        if(utilPercentage <= 50) { capacityName = "Light"}
+        else if(utilPercentage <= 85) { capacityName = "Medium"}
+        else if(utilPercentage <= 95) { capacityName = "Busy"}
+        else if(utilPercentage <= 100) { capacityName = "Full"}
+        else { capacityName = "Overloaded"}
+
+        $(`#capacity`).val(capacityName)
+      })
+    }
+
     $("#capacity").change(capacityPrettify)
 
     document.addEventListener('keydown', (e) => {
@@ -306,16 +399,12 @@
 
     $("input[name='addTask']").click(addTask)
 
-    document.querySelectorAll("input[name='delete']").forEach(elem => {
-      elem.onclick = deleteTask
-    })
-
     $("input[name='generateMsg']").click(() => {
       generateMsg();
       document.getElementById("output").scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
     })
 
-    $('h2').click( () => {
+    $('h1').click( () => {
       const vaguelyAmusing = [
         "Now with 20% less sodium!",
         "No animals were harmed in the making of this site!",
@@ -338,67 +427,105 @@
         "Now sponsored by absolutely no one!",
         "If it ain't broke, Seabrook's not touched it yet",
         "Now with theming, you're welcome Seabrook",
-        `Proudly remembering Dan B for ${Math.floor((Date.now() - Date.parse("2021-09-30")) / 86400000)} day(s)`
+        `Proudly remembering Dan B for ${Math.floor((Date.now() - Date.parse("2021-09-30")) / 86400000)} days`
       ]
       document.getElementById("egg").innerText = `(${vaguelyAmusing[Math.floor(Math.random() * vaguelyAmusing.length)]})`
     })
+    // #endregion
 
-    async function sanitiseSubreddits(subredditList) {
-      return await subredditList.filter( async (sub) => {
-        res = await fetch(`https://www.reddit.com/r/${subredditList[Math.floor(Math.random() * subredditList.length)]}/top.json`)
-        res = res.json()
-        try {
-          //alert(res.data.after)
-          if(res.data.after != "") {
-            alert(`Checked ${sub}. Response`)
-            return true;
-          }
-        } catch {
-          return false;
-        }
-      })
+    // #region Theming
+    const themes = []
+    $("link[theme]").each((i, e) => {
+      const $e = $(e)
+      const href = $e.attr("href")
+      themes.push(new RegExp("css\/([a-z\-]+)", "gi").exec(href)[1])
+    });
+
+    const toggleTheme = () => {
+      chosenTheme = themes[(themes.indexOf(chosenTheme) + 1) % themes.length];
+      setTheme()
     }
 
-    async function scrapeFromReddit() {
-      let notChosen = true, tmp, subredditList
-      while(notChosen) {
-        subredditList = await nullCheck($('#subreddit-list').val().split(","))
-        subredditList = await sanitiseSubreddits(subredditList)
-        alert(`subList: ${subredditList}`)
-        if(subredditList.length === 0) { subredditList = ["rarepuppers"]}
-        subredditList = subredditList.map(s => s.trim() )
-        while(notChosen) {
-          try {
-            await fetch(`https://www.reddit.com/r/${subredditList[Math.floor(Math.random() * subredditList.length)]}/top.json`)
-              .then( (res) => res.json())
-              .then( (res) => {
-                try {
-                  while(notChosen) {
-                    tmp = res.data.children[Math.floor(Math.random() * res.data.children.length)]
-                    if(tmp.data.post_hint == "image") { notChosen = false }
-                  }
-                } catch (e) {console.error(e)}
-                $('#cute').attr("src", tmp.data.preview.images[0].source.url.replace("&amp;", "&"))
-              })
-          } catch {}
-        }
+    const setTheme = () => {
+      Array.from(document.querySelectorAll("link[theme]")).forEach(e => e.disabled = true)
+      document.querySelector(`link[href*='/${chosenTheme}.css']`).disabled = false;
+    }
+    // #endregion
+
+    const generateMsg = () => {
+      let outElem = document.getElementById("output"),
+        numBlocked = 0,
+        msg = "",
+        name = $('input[name="username"]').val().trim();
+        capacity = $("#capacity").val(),
+        exactCapacity = $('input[name="exact-capacity"]').val() || 0
+
+        // Future me, ko-KR means YYYY/MM/DD, not that someone's pranking you by messing with your datestamp
+      if(name !== "") {
+        msg += `<strong>${name}</strong><br/><strong>${(new Date()).toLocaleDateString('ko-KR')}</strong><br/><br/>`
       }
+
+      tasks.forEach(task => {
+        if(!(task.blocked === "No")) { numBlocked++; }
+
+        msg +=
+          `<strong>Task: ${task.name}</strong><br />Status: ${task.status}<br />${task.hours != 0 && task.hours != "" ? `Expected Hours Today: ${task.hours}<br />` : ""}<i>Blocked: ${task.blocked}</i><br /><br />`
+      })
+      msg += `Number of Tasks Blocked: ${numBlocked}<br />`
+      msg += `<u><b>Available Capacity: ${$("#capacity").val()}</b></u>`;
+
+      if(capacity == "Light") { msg += "✋" }
+      else if(capacity == "Full") { msg += "💯" }
+      if(exactCapacity && exactCapacity != 0) { msg += "<br />Exact utilisation: " + $("input[name='exact-capacity']").val()}
+      if($("#capacity").val() == "Overloaded") {
+        msg = `⚠⚠⚠⚠⚠<br />${msg}<br />⚠⚠⚠⚠⚠`;
+      }
+
+      outElem.innerHTML = msg;
+
+      outElem.style.height = "";
+      outElem.style.height = outElem.scrollHeight + "px"
+      setStorage()
+      copyDivToClipboard()
     }
+
+    const legacyTasklistHandling = () => {
+      try {
+        let storedJSON = JSON.parse(localStorage.getItem("tasklistV2"))
+        if(typeof storedJSON.theme == "boolean") {
+          chosenTheme = storedJSON.theme ? "light" : "dark"
+        }
+        if (storedJSON.tasklist.includes(null)) {
+          tasks.push(generateNewTask())
+        } else {
+          storedJSON.tasklist.forEach(t => {
+            if(typeof t.hours === "undefined") {
+              tasks.push({
+                "id": currentTaskNum,
+                "name": t.name,
+                "status": t.status,
+                "blocked": t.blocked,
+                "hours": 0
+              })
+              currentTaskNum++
+            }
+          })
+        }
+      } catch {}
+    }
+
+    // #region Onload/Unload
+    document.onload = async function() {
+      legacyTasklistHandling();
+      setTheme();
+      getStorage();
+      if(tasks.length === 0) { addTask() };
+    }()
 
     window.addEventListener("beforeunload", function(e){
       setStorage()
     });
-
-    const toggleTheme = () => {
-      document.querySelector("link[href='./assets/css/light.css']").disabled = usingLightTheme
-      document.querySelector("link[href='./assets/css/dark.css']").disabled = !usingLightTheme
-      usingLightTheme = !usingLightTheme
-    }
-
-    document.onload = async function() {
-      getStorage();
-      //scrapeFromReddit();
-    }()
+    // #endregion
   </script>
 </body>
 
