@@ -99,6 +99,91 @@ select {
   }
 }
 
+widgets {
+
+  .sidenav-button {
+    width: 40px;
+    height: 40px;
+    padding: 2px;
+    border: 1px solid black;
+    cursor: pointer;
+    transition: 0.3s ease;
+    font-size: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $task-bg;
+    color: $font-emphasis-color;
+    
+    &:hover {
+      background: color.scale($task-bg, $lightness: 20%);
+      transition: 0.3s ease;
+    }
+  }
+
+  .sidenav-module {
+    grid-area: m;
+    background: $task-bg;
+    padding: 5px;
+    border: 1px solid black;
+      
+    &.hidden {
+      display: none;
+    }
+  }
+
+  .sidenav-module[module-name="settings"] form {
+    display: flex;
+    flex-flow: column;
+    justify-items: space-between;
+    
+    label input {
+      float: right;
+    }
+  }
+
+  .sidenav-module[module-name="highlow"] {
+    padding: 10px;
+    display: grid;
+    grid-template-areas:
+      "hh hh lh lh"
+      "hl hl ll ll"
+      "hl hl ll ll"
+      "hl hl ll ll";
+
+    span {
+      width: 100%;
+      text-align: center;
+    }
+
+    ul {
+      padding: 0 0 0 10px;
+      max-height: 100%;
+
+      li {
+        padding: 5px 10px;
+      }
+    }
+
+    #high-list {
+      grid-area: hl;
+    }
+
+    #low-list {
+      grid-area: ll;
+      padding-left: 10px;
+    }
+
+    #high-header {
+      grid-area: hh;
+    }
+
+    #low-header {
+      grid-area: lh;
+    }
+  }
+}
+
 .hidden {
   display: none!important;
 }
@@ -346,6 +431,25 @@ select {
 #fallback {
   position: absolute;
   left: -99999px;
+}
+
+#fixed-sidenav {
+  position: fixed;
+  display: grid;
+  grid-template-areas:
+    "m m m m m ."
+    "m m m m m b"
+    "m m m m m b"
+    "m m m m m .";
+  top: 50%;
+  left: 0;
+  transform: translate(0, -50%);
+}
+
+#sidenav-buttons {
+  display: flex;
+  flex-direction: column;
+  grid-area: b
 }
 
 @media screen and (max-width: 800px) {

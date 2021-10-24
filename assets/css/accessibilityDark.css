@@ -116,6 +116,71 @@ select:focus {
   border: blue solid 2px;
 }
 
+widgets .sidenav-button {
+  width: 40px;
+  height: 40px;
+  padding: 2px;
+  border: 1px solid black;
+  cursor: pointer;
+  transition: 0.3s ease;
+  font-size: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #222;
+  color: #f3f;
+}
+widgets .sidenav-button:hover {
+  background: #4e4e4e;
+  transition: 0.3s ease;
+}
+widgets .sidenav-module {
+  grid-area: m;
+  background: #222;
+  padding: 5px;
+  border: 1px solid black;
+}
+widgets .sidenav-module.hidden {
+  display: none;
+}
+widgets .sidenav-module[module-name=settings] form {
+  display: flex;
+  flex-flow: column;
+  justify-items: space-between;
+}
+widgets .sidenav-module[module-name=settings] form label input {
+  float: right;
+}
+widgets .sidenav-module[module-name=highlow] {
+  padding: 10px;
+  display: grid;
+  grid-template-areas: "hh hh lh lh" "hl hl ll ll" "hl hl ll ll" "hl hl ll ll";
+}
+widgets .sidenav-module[module-name=highlow] span {
+  width: 100%;
+  text-align: center;
+}
+widgets .sidenav-module[module-name=highlow] ul {
+  padding: 0 0 0 10px;
+  max-height: 100%;
+}
+widgets .sidenav-module[module-name=highlow] ul li {
+  padding: 5px 10px;
+}
+widgets .sidenav-module[module-name=highlow] #high-list {
+  grid-area: hl;
+}
+widgets .sidenav-module[module-name=highlow] #low-list {
+  grid-area: ll;
+  padding-left: 10px;
+}
+widgets .sidenav-module[module-name=highlow] #high-header {
+  grid-area: hh;
+}
+widgets .sidenav-module[module-name=highlow] #low-header {
+  grid-area: lh;
+}
+
 .hidden {
   display: none !important;
 }
@@ -331,6 +396,21 @@ select:focus {
 #fallback {
   position: absolute;
   left: -99999px;
+}
+
+#fixed-sidenav {
+  position: fixed;
+  display: grid;
+  grid-template-areas: "m m m m m ." "m m m m m b" "m m m m m b" "m m m m m .";
+  top: 50%;
+  left: 0;
+  transform: translate(0, -50%);
+}
+
+#sidenav-buttons {
+  display: flex;
+  flex-direction: column;
+  grid-area: b;
 }
 
 @media screen and (max-width: 800px) {

@@ -51,21 +51,8 @@
         </tr>
       </table>
       <div id="top-buttons">
-        <button onclick="toggleHighsLowsWidget()">Highs+Lows Tracker</button>
         <button onclick="toggleTheme()">Change Theme</button>
-        <button onclick="toggleTodoWidget()">Show Todo List</button>
       </div>
-    </div>
-    <div id="screen-dimmer" class="hidden"></div>
-    <div id="highsLowsWidget" class="widget hidden">
-      <h3>Highs + Lows</h3>
-      <textarea></textarea>
-      <button onclick="toggleHighsLowsWidget()">Close</button>
-    </div>
-    <div id="todoWidget" class="widget hidden">
-      <h3>TODO</h3>
-      <textarea></textarea>
-      <button onclick="toggleTodoWidget()">Close</button>
     </div>
     <div id="output"></div>
     <div id="pre-task-details">
@@ -95,6 +82,39 @@
     </div>
     <textarea tabindex="-1" id="fallback"></textarea>
   </main>
+
+  <!--#region Widgets-->
+  <widgets>
+    <div id="fixed-sidenav">
+
+      <div class="sidenav-module hidden" module-name="settings">
+        <form onsubmit="location.reload()">
+          <label for="setting-lightThemeTeams">Using Light Theme Teams<input type="checkbox" name="setting-lightThemeTeams"></input></label>
+          <label for="setting-lightThemeTeams">Disable Auto-Capacity<input type="checkbox" name="setting-lightThemeTeams"></input></label>
+          <input type="submit" value="Update Settings"></input>
+        </form>
+      </div>
+
+      <div class="sidenav-module hidden" module-name="highlow">
+        <span id="high-header">Highs</span>
+        <ul class="highlow-list" id="high-list">
+          <li><input class="high-input" type="text" placeholder="Text Here"></input></li>
+        </ul>
+        <span id="low-header">Lows</span>
+        <ul class="highlow-list" id="low-list">
+          <li><input class="low-input" type="text" placeholder="Text Here"></input></li>
+        </ul>
+      </div>
+
+      <div id="sidenav-buttons">
+        <div class="sidenav-button" opens-module="settings"><i class="fas fa-cog"></i></div>
+        <div class="sidenav-button" opens-module="theme"><i class="fas fa-palette"></i></div>
+        <div class="sidenav-button" opens-module="todo"><i class="fas fa-tasks"></i></div>
+        <div class="sidenav-button" opens-module="highlow"><i class="fas fa-sort"></i></div>
+      </div>
+    </div>
+  </widgets>
+  <!-- #endregion -->
   <script src="assets/jquery-3.6.0.min.js"></script>
   <script async defer>
     let chosenTheme = "dark", tasks = [], currentTaskNum = 0;
@@ -248,7 +268,7 @@
       $(taskElem).find(`select[name='blocked']`).val(task.blocked)
       $(taskElem).find(`input[name='hours']`).attr("value", task.hours)
       $("#task-holder").append(taskElem)
-      updateInputFocusoutListener()
+      // updateInputFocusoutListener()
       $(taskElem).find("input[name='taskname']").focus()
     }
 
@@ -319,20 +339,6 @@
     // #endregion
     // #endregion
 
-    // #region Top Button Widgets
-    const toggleScreenDimmer = () => $("#screen-dimmer").toggleClass("hidden")
-
-    const toggleHighsLowsWidget = () => {
-      toggleScreenDimmer();
-      $("#highsLowsWidget").toggleClass("hidden")
-    }
-
-    const toggleTodoWidget = () => {
-      toggleScreenDimmer();
-      $("#todoWidget").toggleClass("hidden")
-    }
-    // #endregion
-
     // #region Event Listeners
     const ctrlShortcuts = {
       "Delete": deleteTaskShortcut,
@@ -352,7 +358,7 @@
       },
     };
 
-    const updateInputFocusoutListener = () => {
+    $('#task-holder').on('focusout', "input", () => {
       $("input").on('focusout', updateTasksFromDOM)
       $("select").on('focusout', updateTasksFromDOM)
       $('input[name="hours"]').on('focusout', () => {
@@ -384,7 +390,7 @@
 
         $(`#capacity`).val(capacityName)
       })
-    }
+    })
 
     $("#capacity").change(capacityPrettify)
 
@@ -452,6 +458,36 @@
     }
     // #endregion
 
+    // #region Widgets
+    $('.sidenav-button').click( function() {
+      const module = $(this).attr("opens-module")
+      const $targetedModule = $(`.sidenav-module[module-name="${module}"`)
+      if($targetedModule.hasClass("hidden")) {
+        $(".sidenav-module").addClass("hidden")
+        $targetedModule.removeClass("hidden")
+      } else { $targetedModule.addClass("hidden") }
+    })
+    
+    $(".highlow-list").on("input", "li", function() {
+      const $list = $(this).parent(".highlow-list")
+      if($(this).find("input").val().length > 0) {
+        if($list.children("li").last().find("input").val().length > 0) {
+          let type = "low"
+          if($list.attr('id') === "high-list") {
+            type = "high"
+          }
+          $(`#${type}-list`).append(
+            createElementFromHTML(`<li><input class="${type}-input" type="text" placeholder="Text Here"></input></li>`)
+          )
+        }
+      } else {
+        if($list.children("li").length > 1) {
+          $list.children("li").last().remove();
+        }
+      }
+    })
+    // #endregion
+
     const generateMsg = () => {
       let outElem = document.getElementById("output"),
         numBlocked = 0,
@@ -516,10 +552,10 @@
 
     // #region Onload/Unload
     document.onload = async function() {
-      legacyTasklistHandling();
+      legacyTasklistHandling()
       setTheme();
       getStorage();
-      if(tasks.length === 0) { addTask() };
+      if(tasks.length === 0) { addTask() }
     }()
 
     window.addEventListener("beforeunload", function(e){
