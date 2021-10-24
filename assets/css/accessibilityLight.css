@@ -25,7 +25,7 @@
 body {
   background: #fff;
   color: #000;
-  font: 16px/18px "OpenDyslexic";
+  font: 16px/24px "OpenDyslexic";
 }
 body ::placeholder {
   font-size: 18px;
@@ -114,6 +114,10 @@ select.Light, select option[value=light] {
 }
 select:focus {
   border: blue solid 2px;
+}
+
+b {
+  font: bold 16px/20px "OpenDyslexic";
 }
 
 .hidden {

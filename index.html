@@ -67,7 +67,32 @@
       <textarea></textarea>
       <button onclick="toggleTodoWidget()">Close</button>
     </div>
-    <div id="output"></div>
+    <div id="output">
+      <p id="msg-name"></p>
+      <p id="msg-date"></p>
+      <br />
+      <div id="msg-tasks">
+
+      </div>
+      <br />
+      <p id="msg-total-blocked"></p>
+      <p id="msg-capacity"></p>
+      <p id="msg-exact-capacity"></p>
+    </div>
+
+    <template id="template-task">
+      <p>
+        <span><b>Task: <span class="task-name"></span></b></span>
+        <br />
+        <span>Status: <span class="task-status"></span></span>
+        <br />
+        <span>Blocked: <span class="task-blocked"></span></span>
+        <br />
+        <span class="task-hours"></span>
+      </p>
+      <br />
+    </template>
+
     <div id="pre-task-details">
       <label for="username">Your Name: </label>
       <input type="text" name="username" placeholder="Dan Brown">
@@ -453,38 +478,42 @@
     // #endregion
 
     const generateMsg = () => {
-      let outElem = document.getElementById("output"),
-        numBlocked = 0,
-        msg = "",
-        name = $('input[name="username"]').val().trim();
+      let numBlocked = 0,
+        $outElem = $("#output"),
+        name = $('input[name="username"]').val().trim(),
         capacity = $("#capacity").val(),
         exactCapacity = $('input[name="exact-capacity"]').val() || 0
 
-        // Future me, ko-KR means YYYY/MM/DD, not that someone's pranking you by messing with your datestamp
+      // Future me, ko-KR means YYYY/MM/DD, not that someone's pranking you by messing with your datestamp
       if(name !== "") {
-        msg += `<strong>${name}</strong><br/><strong>${(new Date()).toLocaleDateString('ko-KR')}</strong><br/><br/>`
+        $("#msg-name").text(name)
+        $("#msg-date").text(new Date().toLocaleDateString('ko-KR'))
       }
 
       tasks.forEach(task => {
         if(!(task.blocked === "No")) { numBlocked++; }
 
-        msg +=
-          `<strong>Task: ${task.name}</strong><br />Status: ${task.status}<br />${task.hours != 0 && task.hours != "" ? `Expected Hours Today: ${task.hours}<br />` : ""}<i>Blocked: ${task.blocked}</i><br /><br />`
+        let clone = $("#template-task")[0].content.cloneNode(true)
+        let $taskElem = $(clone)
+        $taskElem.find(".task-name").text(task.name)
+        $taskElem.find(".task-status").text(task.status)
+        $taskElem.find(".task-blocked").text(task.blocked)
+        if(task.hours > 0) { $taskElem.find(".task-hours").text(`Expected Hours Today: ${task.hours}`)}
+        $("#msg-tasks").append($taskElem)
       })
-      msg += `Number of Tasks Blocked: ${numBlocked}<br />`
-      msg += `<u><b>Available Capacity: ${$("#capacity").val()}</b></u>`;
-
-      if(capacity == "Light") { msg += "✋" }
-      else if(capacity == "Full") { msg += "💯" }
-      if(exactCapacity && exactCapacity != 0) { msg += "<br />Exact utilisation: " + $("input[name='exact-capacity']").val()}
-      if($("#capacity").val() == "Overloaded") {
-        msg = `⚠⚠⚠⚠⚠<br />${msg}<br />⚠⚠⚠⚠⚠`;
+      $('#msg-total-blocked').text(`Number of Tasks Blocked: ${numBlocked}`)
+      $('#msg-capacity').text(`Available Capacity: ${$("#capacity").val()}`)
+      if(exactCapacity && exactCapacity != 0) {
+        $('#msg-exact-capacity').text(`Exact Utilisation: ${$("input[name='exact-capacity']").val()}%`)
       }
 
-      outElem.innerHTML = msg;
+      let capacityEmoji;
+      if(capacity == "Light") { capacityEmoji = "✋" }
+      else if(capacity == "Full") { capacityEmoji = "💯" }
+      $('#msg-capacity').append(capacityEmoji)
 
-      outElem.style.height = "";
-      outElem.style.height = outElem.scrollHeight + "px"
+      if($("#capacity").val() == "Overloaded") { $("#output").prepend("⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠") }
+
       setStorage()
       copyDivToClipboard()
     }

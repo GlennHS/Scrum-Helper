@@ -99,6 +99,10 @@ select {
   }
 }
 
+b {
+  font: $body-font-bold;
+}
+
 .hidden {
   display: none!important;
 }
