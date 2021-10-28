@@ -93,10 +93,6 @@ select:focus {
   border: blue solid 2px;
 }
 
-b {
-  font: bold 16px/20px "Creepster";
-}
-
 .hidden {
   display: none !important;
 }

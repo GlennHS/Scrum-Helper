@@ -116,10 +116,6 @@ select:focus {
   border: blue solid 2px;
 }
 
-b {
-  font: bold 16px/20px "OpenDyslexic";
-}
-
 .hidden {
   display: none !important;
 }
