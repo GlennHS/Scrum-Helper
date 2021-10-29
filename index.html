@@ -54,7 +54,59 @@
         <button onclick="toggleTheme()">Change Theme</button>
       </div>
     </div>
-    <div id="output"></div>
+    <div id="screen-dimmer" class="hidden"></div>
+    <div id="highsLowsWidget" class="widget hidden">
+      <h3>Highs + Lows</h3>
+      <textarea></textarea>
+      <button onclick="toggleHighsLowsWidget()">Close</button>
+    </div>
+    <div id="todoWidget" class="widget hidden">
+      <h3>TODO</h3>
+      <textarea></textarea>
+      <button onclick="toggleTodoWidget()">Close</button>
+    </div>
+    <div id="output">
+      <strong id="msg-name"></strong>
+      <br />
+      <strong id="msg-date"></strong>
+      <br />
+      <br />
+      <div id="msg-tasks">
+
+      </div>
+      <span id="msg-total-blocked"></span><br />
+      <u><b><span id="msg-capacity"></span></b></u><br />
+      <span id="msg-exact-capacity"></span>
+    </div>
+
+    <template id="template-msg-task">
+      <strong class="task-name"></strong><br />
+      <span class="task-status"></span><br />
+      <span class="task-hours"></span><br class="task-hours-break"/>
+      <i class="task-blocked"></i><br /><br />
+    </template>
+
+    <template id="DOM-task">
+      <div class="task">
+        <div class="priority priority-top"><i class="fas fa-level-up-alt"></i></div>
+        <div class="priority priority-up"><i class="fas fa-long-arrow-alt-up"></i></div>
+        <div class="priority priority-down"><i class="fas fa-long-arrow-alt-down"></i></div>
+        <div class="priority priority-bottom"><i class="fas fa-level-down-alt"></i></div>
+        <label for="taskname">Clarizen Task:</label>
+        <input type="text" autofocus name="taskname" placeholder="Clarizen Task Name">
+        <label for="blocked">Blocked?</label>
+        <select name="blocked">
+          <option value="No">No</option>
+          <option value="Partial">Partial</option>
+          <option value="Yes">Yes</option>
+        </select>
+        <label for="hours">Expected Hours:</label>
+        <input type="number" name="hours">
+        <label for="status">Status Update:</label>
+        <input type="text" name="status" placeholder="Status Update">
+        <input type="button" name="delete" value="Delete Task">
+      </div>
+    </template>
     <div id="pre-task-details">
       <label for="username">Your Name: </label>
       <input type="text" name="username" placeholder="Dan Brown">
@@ -244,31 +296,22 @@
     }
 
     const addTaskToDOM = (task) => {
-      const taskElem = createElementFromHTML(`
-      <div taskid="${task.id}" id="task-${task.id}" class="task">
-        <div class="priority priority-top" onclick="moveTaskTopPriority(${task.id})"><i class="fas fa-level-up-alt"></i></div>
-        <div class="priority priority-up" onclick="moveTaskUpPriority(${task.id})"><i class="fas fa-long-arrow-alt-up"></i></div>
-        <div class="priority priority-down" onclick="moveTaskDownPriority(${task.id})"><i class="fas fa-long-arrow-alt-down"></i></div>
-        <div class="priority priority-bottom" onclick="moveTaskBottomPriority(${task.id})"><i class="fas fa-level-down-alt"></i></div>
-        <label for="taskname">Clarizen Task:</label>
-        <input type="text" autofocus name="taskname" placeholder="Clarizen Task Name" value="${task.name}">
-        <label for="blocked">Blocked?</label>
-        <select name="blocked">
-          <option value="No">No</option>
-          <option value="Partial">Partial</option>
-          <option value="Yes">Yes</option>
-        </select>
-        <label for="hours">Expected Hours:</label>
-        <input type="number" name="hours">
-        <label for="status">Status Update:</label>
-        <input type="text" name="status" placeholder="Status Update" value="${task.status}">
-        <input type="button" name="delete" value="Delete Task" onclick="deleteTask(${task.id})">
-      </div>
-      `)
-      $(taskElem).find(`select[name='blocked']`).val(task.blocked)
-      $(taskElem).find(`input[name='hours']`).attr("value", task.hours)
-      $("#task-holder").append(taskElem)
-      // updateInputFocusoutListener()
+      const taskElem = $("#DOM-task")[0].content.cloneNode(true)
+      let $taskElem = $(taskElem)
+      
+      $taskElem.find(".task").attr("taskid", task.id)
+      $taskElem.find(".task").attr("id",`task-${task.id}`)
+      $taskElem.find(".priority-top").attr("onclick", `moveTaskTopPriority(${task.id})`)
+      $taskElem.find(".priority-up").attr("onclick", `moveTaskUpPriority(${task.id})`)
+      $taskElem.find(".priority-down").attr("onclick", `moveTaskDownPriority(${task.id})`)
+      $taskElem.find(".priority-bottom").attr("onclick", `moveTaskBottomPriority(${task.id})`)
+      $taskElem.find("input[name='taskname']").attr("value", task.name)
+      $taskElem.find(`select[name='blocked']`).val(task.blocked)
+      $taskElem.find(`input[name='hours']`).attr("value", task.hours)
+      $taskElem.find("input[name='delete']").attr("onclick", `deleteTask(${task.id})`)
+      
+      $("#task-holder").append($taskElem)
+      updateInputFocusoutListener()
       $(taskElem).find("input[name='taskname']").focus()
     }
 
@@ -489,38 +532,51 @@
     // #endregion
 
     const generateMsg = () => {
-      let outElem = document.getElementById("output"),
-        numBlocked = 0,
-        msg = "",
-        name = $('input[name="username"]').val().trim();
+      let numBlocked = 0,
+        $outElem = $("#output"),
+        name = $('input[name="username"]').val().trim(),
         capacity = $("#capacity").val(),
         exactCapacity = $('input[name="exact-capacity"]').val() || 0
 
-        // Future me, ko-KR means YYYY/MM/DD, not that someone's pranking you by messing with your datestamp
+      // Future me, ko-KR means YYYY/MM/DD, not that someone's pranking you by messing with your datestamp
       if(name !== "") {
-        msg += `<strong>${name}</strong><br/><strong>${(new Date()).toLocaleDateString('ko-KR')}</strong><br/><br/>`
+        $("#msg-name").text(name)
+        $("#msg-date").text(new Date().toLocaleDateString('ko-KR'))
       }
+
+      $("#msg-tasks").empty()
 
       tasks.forEach(task => {
         if(!(task.blocked === "No")) { numBlocked++; }
 
-        msg +=
-          `<strong>Task: ${task.name}</strong><br />Status: ${task.status}<br />${task.hours != 0 && task.hours != "" ? `Expected Hours Today: ${task.hours}<br />` : ""}<i>Blocked: ${task.blocked}</i><br /><br />`
+        let clone = $("#template-msg-task")[0].content.cloneNode(true)
+        let $taskElem = $(clone)
+        $taskElem.find(".task-name").text(`Name: ${task.name}`)
+        $taskElem.find(".task-status").text(`Status: ${task.status}`)
+        $taskElem.find(".task-blocked").text(`Blocked: ${task.blocked}`)
+        if(task.hours > 0) {
+          $taskElem.find(".task-hours").text(`Expected Hours Today: ${task.hours}`)
+        } else {
+          $taskElem.find(".task-hours, .task-hours-break").remove()
+        }
+        $("#msg-tasks").append($taskElem)
       })
-      msg += `Number of Tasks Blocked: ${numBlocked}<br />`
-      msg += `<u><b>Available Capacity: ${$("#capacity").val()}</b></u>`;
-
-      if(capacity == "Light") { msg += "✋" }
-      else if(capacity == "Full") { msg += "💯" }
-      if(exactCapacity && exactCapacity != 0) { msg += "<br />Exact utilisation: " + $("input[name='exact-capacity']").val()}
-      if($("#capacity").val() == "Overloaded") {
-        msg = `⚠⚠⚠⚠⚠<br />${msg}<br />⚠⚠⚠⚠⚠`;
+      $('#msg-total-blocked').text(`Number of Tasks Blocked: ${numBlocked}`)
+      $('#msg-capacity').text(`Available Capacity: ${$("#capacity").val()}`)
+      $('#msg-exact-capacity').text("")
+      if(exactCapacity && exactCapacity != 0) {
+        $('#msg-exact-capacity').text(`Exact Utilisation: ${$("input[name='exact-capacity']").val()}%`)
       }
 
-      outElem.innerHTML = msg;
+      let capacityEmoji;
+      if(capacity == "Light") { capacityEmoji = "✋" }
+      else if(capacity == "Full") { capacityEmoji = "💯" }
+      $('#msg-capacity').append(capacityEmoji)
 
-      outElem.style.height = "";
-      outElem.style.height = outElem.scrollHeight + "px"
+      if($("#capacity").val() == "Overloaded") {
+        $("#msg-capacity").text(`⚠⚠⚠   ${$("#msg-capacity").text()}   ⚠⚠⚠`)
+      }
+
       setStorage()
       copyDivToClipboard()
     }
