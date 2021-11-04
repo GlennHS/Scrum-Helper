@@ -54,17 +54,6 @@
         <button onclick="toggleTheme()">Change Theme</button>
       </div>
     </div>
-    <div id="screen-dimmer" class="hidden"></div>
-    <div id="highsLowsWidget" class="widget hidden">
-      <h3>Highs + Lows</h3>
-      <textarea></textarea>
-      <button onclick="toggleHighsLowsWidget()">Close</button>
-    </div>
-    <div id="todoWidget" class="widget hidden">
-      <h3>TODO</h3>
-      <textarea></textarea>
-      <button onclick="toggleTodoWidget()">Close</button>
-    </div>
     <div id="output">
       <strong id="msg-name"></strong>
       <br />
@@ -311,7 +300,6 @@
       $taskElem.find("input[name='delete']").attr("onclick", `deleteTask(${task.id})`)
       
       $("#task-holder").append($taskElem)
-      updateInputFocusoutListener()
       $(taskElem).find("input[name='taskname']").focus()
     }
 

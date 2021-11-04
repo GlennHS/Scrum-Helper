@@ -116,9 +116,10 @@ widgets .sidenav-module {
   background: #ec4d91;
   padding: 5px;
   border: 1px solid black;
+  min-width: 400px;
 }
 widgets .sidenav-module.hidden {
-  display: none;
+  width: 0 !important;
 }
 widgets .sidenav-module[module-name=settings] form {
   display: flex;
@@ -131,7 +132,7 @@ widgets .sidenav-module[module-name=settings] form label input {
 widgets .sidenav-module[module-name=highlow] {
   padding: 10px;
   display: grid;
-  grid-template-areas: "hh hh lh lh" "hl hl ll ll" "hl hl ll ll" "hl hl ll ll";
+  grid-template-areas: "hh hh hh hh" "hl hl hl hl" "lh lh lh lh" "ll ll ll ll";
 }
 widgets .sidenav-module[module-name=highlow] span {
   width: 100%;
@@ -140,9 +141,13 @@ widgets .sidenav-module[module-name=highlow] span {
 widgets .sidenav-module[module-name=highlow] ul {
   padding: 0 0 0 10px;
   max-height: 100%;
+  list-style: none;
 }
 widgets .sidenav-module[module-name=highlow] ul li {
   padding: 5px 10px;
+}
+widgets .sidenav-module[module-name=highlow] ul li input {
+  width: 100%;
 }
 widgets .sidenav-module[module-name=highlow] #high-list {
   grid-area: hl;

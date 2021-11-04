@@ -126,9 +126,10 @@ widgets {
     background: $task-bg;
     padding: 5px;
     border: 1px solid black;
+    min-width: 400px;
       
     &.hidden {
-      display: none;
+      width: 0!important;
     }
   }
 
@@ -146,10 +147,10 @@ widgets {
     padding: 10px;
     display: grid;
     grid-template-areas:
-      "hh hh lh lh"
-      "hl hl ll ll"
-      "hl hl ll ll"
-      "hl hl ll ll";
+      "hh hh hh hh"
+      "hl hl hl hl"
+      "lh lh lh lh"
+      "ll ll ll ll";
 
     span {
       width: 100%;
@@ -159,9 +160,14 @@ widgets {
     ul {
       padding: 0 0 0 10px;
       max-height: 100%;
+      list-style: none;
 
       li {
         padding: 5px 10px;
+
+        input {
+          width: 100%;
+        }
       }
     }
 
