@@ -11,10 +11,6 @@
       href="../favicon.png">
   <link rel="stylesheet" href="./assets/fontawesome/css/all.min.css">
   <link rel="stylesheet" theme href="./assets/css/light.css">
-  <link rel="stylesheet" theme href="./assets/css/dark.css">
-  <link rel="stylesheet" theme href="./assets/css/spook.css">
-  <link rel="stylesheet" theme href="./assets/css/accessibilityLight.css">
-  <link rel="stylesheet" theme href="./assets/css/accessibilityDark.css">
   <script defer src="./assets/fontawesome/js/all.min.js"></script>
 </head>
 
@@ -23,7 +19,7 @@
     <h1>Scrum Helper: It Probably Works™</h1>
     <h2 id="egg">A Daily Choose Your Own Adventure!</h2>
     <div id="shortcuts">
-      <p id="quirks"><em><strong>Current Issues: </strong><a href="https://gisthub.com/GlennHS/Scrum-Helper/projects/1">Please see issues tracker for all known issues and their most recent status</a></em></p>
+      <p id="quirks"><em><strong>Current Issues: </strong><a href="https://github.com/GlennHS/Scrum-Helper/projects/1">Please see issues tracker for all known issues and their most recent status</a></em></p>
       <table>
         <tr>
           <td><strong>Ctrl+#</strong></td>
@@ -471,12 +467,12 @@
     // #endregion
 
     // #region Theming
-    const themes = []
-    $("link[theme]").each((i, e) => {
-      const $e = $(e)
-      const href = $e.attr("href")
-      themes.push(new RegExp("css\/([a-z\-]+)", "gi").exec(href)[1])
-    });
+    const themes = [
+      "light",
+      "dark",
+      "accessibilityLight",
+      "accessibilityDark"
+    ]
 
     const toggleTheme = () => {
       chosenTheme = themes[(themes.indexOf(chosenTheme) + 1) % themes.length];
@@ -484,8 +480,11 @@
     }
 
     const setTheme = () => {
-      Array.from(document.querySelectorAll("link[theme]")).forEach(e => e.disabled = true)
-      document.querySelector(`link[href*='/${chosenTheme}.css']`).disabled = false;
+      try {
+        $("link[theme]").attr("href", `./assets/css/${chosenTheme}.css`)
+      } catch {
+        $("link[theme]").attr("href", "/light.css")
+      }
     }
     // #endregion
 
