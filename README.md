@@ -1,10 +1,14 @@
 # Scrum Helper
 
+### Note: Stu has made a significantly better version of this, rendering this obsolete. Thank you Dan for your help with this project, as well as all my other projects. I'll always appreciate the learning you helped me with, your patience and your contributions to my work.
+
+---
+
 A web-based application to ease daily task status updates while ensuring
 that output is automatically formatted in a standardised manner.
 
 This application boasts a keyboard-driven workflow to make usage as fast 
-as possible while supporting both a light and dark theme to suit your preference.
+as possible while supporting multiple themes to suit your preference, as well as a dyslexia friendly font.
 
 ### Developing
 
