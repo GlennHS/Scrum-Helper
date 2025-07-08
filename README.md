@@ -1,6 +1,6 @@
 # Scrum Helper
 
-### Note: Stu has made a significantly better version of this, rendering this obsolete. Thank you Dan for your help with this project, as well as all my other projects. I'll always appreciate the learning you helped me with, your patience and your contributions to my work.
+### Note: This repository is now archived as it was an internal project for an old company and no longer has purpose
 
 ---
 
